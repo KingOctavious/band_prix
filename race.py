@@ -2,8 +2,12 @@ class Race:
   barricade = '='
   lane_stripe = '|'
 
-  def __init__(self, teams):
+
+
+  def __init__(self, teams, circuit):
     self.teams = teams
+    self.circuit = circuit
+    
     self.lane_padding = 1
 
     # All vehicle bodies should be the same width, so we only have to look at

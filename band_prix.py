@@ -1,7 +1,10 @@
 import libtcodpy as tcod
+
+import circuits
 from input_handlers import handle_keys
 from race import Race
 from team import Team
+from time import sleep
 from vehicle import Vehicle
 from vehicle_body import Vehicle_Body
 import vehicle_bodies
@@ -36,7 +39,7 @@ TURN_BASED = False
 #     return True
 
 
-def print_track(con, race):
+def print_track(con, race, distance):
   lane_count = len(race.teams)
   lane_size = race.lane_size
   track_width = ((lane_size + 1) * lane_count) + 1
@@ -67,8 +70,8 @@ def print_vehicles(con, race):
         tcod.console_put_char(con, x, y, race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
 
 
-def print_race(con, race):
-  print_track(con, race)
+def print_race(con, race, distance):
+  print_track(con, race, distance)
   print_vehicles(con, race)
 
 
@@ -95,19 +98,21 @@ teams = [
   Team('Strange Dan Gustafvist', Vehicle(vehicle_bodies.v_bod_1)),
 ]
 
-race = Race(teams)
+race = Race(teams, circuits.circuit1)
 
-# Figure out which team index is the player's team
+# Figure out which team index is the player's team and reset their distance_traveled
 player_team_index = 0
 for x in range(0, len(race.teams)):
+  race.teams[x].vehicle.distance_traveled = 0
+  race.teams[x].vehicle.speed = 0
   if (race.teams[x].isPlayer):
     player_team_index = x
-    break
 
 
 
 
-counter = 0
+distance = 0
+ticks = 0
 key = tcod.Key()
 mouse = tcod.Mouse()
 exit_game = False
@@ -128,14 +133,14 @@ while not tcod.console_is_window_closed() and not exit_game:
 
 
   tcod.console_clear(con)
-  print_race(con, race)
+  print_race(con, race, distance)
   tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0,)
   tcod.console_flush()
 
 
 
-
-  counter += 1   
-
+  sleep(1)
+  distance += 1
+  ticks += 1
 
 quit()

@@ -10,6 +10,9 @@ class Vehicle:
     self.x = 0
     self.y = 0
 
+    self.distance_traveled = 0
+    self.speed = 0
+
     self.components_condition = {
       'engine': self.MAX_COMPONENT_CONDITION,
       'front axle': self.MAX_COMPONENT_CONDITION,
