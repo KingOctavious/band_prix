@@ -6,6 +6,10 @@ class Vehicle:
   def __init__(self, body):
     self.body = body
 
+    # Positions based on coordinates of vehicle's top left tile
+    self.x = 0
+    self.y = 0
+
     self.components_condition = {
       'engine': self.MAX_COMPONENT_CONDITION,
       'front axle': self.MAX_COMPONENT_CONDITION,

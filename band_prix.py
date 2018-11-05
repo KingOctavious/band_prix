@@ -62,33 +62,30 @@ exit_game = False
 while not tcod.console_is_window_closed() and not exit_game:
   tcod.console_set_default_foreground(0, tcod.pink)
 
+  ## Print barricades and lane stripes
   for row in range(0, 30):
     for col in range(0, track_width):
 
+      # Print barricades
       if col == 0 or col == track_width - 1:
         tcod.console_put_char(0, col, row, race.barricade, tcod.BKGND_NONE)
 
       else:
-        # Track which lane and which column whithin the lane we're in to keep 
-        # things easier later
         lane = int(col / (lane_size + 1))
         col_within_lane = col - (lane * (lane_size + 1))
-        vehicle_this_lane = teams[lane].vehicle
-        veh_width = vehicle_this_lane.body.width
 
         # Print lane stripes
         if col_within_lane == 0:
           tcod.console_put_char(0, col, row, race.lane_stripe, tcod.BKGND_NONE)
 
-        else:
-          veh_bod_row = row - vehicle_draw_offset_from_top
-          veh_bod_col = col_within_lane - race.lane_padding - 1
-
-          # veh_bod_row and ..._col are assigned regardless of whether they are
-          # actually parts of the car body. So, here we need to validate.
-          if veh_bod_row >= 0 and veh_bod_row < vehicle_this_lane.body.length and veh_bod_col >= 0 and veh_bod_col < len(vehicle_this_lane.body.rows[veh_bod_row]):
-            tcod.console_put_char(0, col, row, vehicle_this_lane.body.rows[veh_bod_row][veh_bod_col], tcod.BKGND_NONE)
-
+  # Print all vehicles
+  for n in range(0, len(race.teams)):
+    for row in range(0, len(race.teams[n].vehicle.body.rows)):
+      for col in range(0, len(race.teams[n].vehicle.body.rows[row])):
+        x = race.teams[n].vehicle.x + col
+        y = race.teams[n].vehicle.y + row
+        tcod.console_put_char(0, x, y, race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
+          
 
   tcod.console_flush()
 
