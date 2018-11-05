@@ -1,4 +1,5 @@
 import libtcodpy as tcod
+from input_handlers import handle_keys
 from race import Race
 from team import Team
 from vehicle import Vehicle
@@ -15,24 +16,24 @@ font_path = 'terminal10x10_gs_tc.png'
 font_flags = tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD
 TURN_BASED = False
 
-def get_key_event(turn_based=None):
-  if turn_based:
-    key = tcod.console_wait_for_keypress(True)
-  else:
-    key = tcod.console_check_for_keypress()
+# def get_key_event(turn_based=None):
+#   if turn_based:
+#     key = tcod.console_wait_for_keypress(True)
+#   else:
+#     key = tcod.console_check_for_keypress()
 
-  return key
+#   return key
 
 
-def handle_keys():
-  key = get_key_event(TURN_BASED)
+# def handle_keys():
+#   key = get_key_event(TURN_BASED)
 
-  # Alt+Enter: toggle fullscreen
-  if key.vk == tcod.KEY_ENTER and key.lalt:
-    tcod.console_set_fullscreen(not tcod.console_is_fullscreen())
-  # Escape: exit game
-  elif key.vk == tcod.KEY_ESCAPE:
-    return True
+#   # Alt+Enter: toggle fullscreen
+#   if key.vk == tcod.KEY_ENTER and key.lalt:
+#     tcod.console_set_fullscreen(not tcod.console_is_fullscreen())
+#   # Escape: exit game
+#   elif key.vk == tcod.KEY_ESCAPE:
+#     return True
 
 
 def print_track(con, race):
@@ -113,17 +114,28 @@ exit_game = False
 tcod.console_set_default_foreground(con, tcod.pink)
 ### GAME LOOP #################################################################
 while not tcod.console_is_window_closed() and not exit_game:
-  tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
+  tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)         
+
+  action = handle_keys(key)
+  steer = action.get('steer')
+  exit = action.get('exit')
+
+  if steer:
+    teams[player_team_index].vehicle.x += steer
+  
+  if exit:
+    exit_game = True
 
 
-          
+  tcod.console_clear(con)
   print_race(con, race)
   tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0,)
   tcod.console_flush()
 
+
+
+
   counter += 1   
 
-
-  exit_game = handle_keys()
 
 quit()
