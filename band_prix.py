@@ -35,8 +35,52 @@ def handle_keys():
     return True
 
 
+def print_track(con, race):
+  lane_count = len(race.teams)
+  lane_size = race.lane_size
+  track_width = ((lane_size + 1) * lane_count) + 1
+
+  for row in range(0, 30):
+    for col in range(0, track_width):
+
+      # Print barricades
+      if col == 0 or col == track_width - 1:
+        tcod.console_put_char(con, col, row, race.barricade, tcod.BKGND_NONE)
+
+      else:
+        lane = int(col / (lane_size + 1))
+        col_within_lane = col - (lane * (lane_size + 1))
+
+        # Print lane stripes
+        if col_within_lane == 0 and row % 3 == 0:
+          tcod.console_put_char(con, col, row, race.lane_stripe, tcod.BKGND_NONE)
+
+
+def print_vehicles(con, race):
+  # Print all vehicles
+  for n in range(0, len(race.teams)):
+    for row in range(0, len(race.teams[n].vehicle.body.rows)):
+      for col in range(0, len(race.teams[n].vehicle.body.rows[row])):
+        x = race.teams[n].vehicle.x + col
+        y = race.teams[n].vehicle.y + row
+        tcod.console_put_char(con, x, y, race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
+
+
+def print_race(con, race):
+  print_track(con, race)
+  print_vehicles(con, race)
+
+
+
+
+
+
+
+
+
 tcod.console_set_custom_font(font_path, font_flags)
 tcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE, fullscreen)
+con = tcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 tcod.sys_set_fps(LIMIT_FPS)
 
 
@@ -45,51 +89,39 @@ tcod.sys_set_fps(LIMIT_FPS)
 teams = [
   Team('Kasvot Vaxt', Vehicle(vehicle_bodies.v_bod_1)),
   Team('ViscDuds', Vehicle(vehicle_bodies.v_bod_1)),
-  Team('The Jack Straw Band', Vehicle(vehicle_bodies.v_bod_1)),
+  Team('The Jack Straw Band', Vehicle(vehicle_bodies.v_bod_1), True),
   Team('The Billiards', Vehicle(vehicle_bodies.v_bod_1)),
   Team('Strange Dan Gustafvist', Vehicle(vehicle_bodies.v_bod_1)),
 ]
 
 race = Race(teams)
 
-lane_count = len(race.teams)
-lane_size = race.lane_size
-track_width = ((lane_size + 1) * lane_count) + 1
-vehicle_draw_offset_from_top = 2
+# Figure out which team index is the player's team
+player_team_index = 0
+for x in range(0, len(race.teams)):
+  if (race.teams[x].isPlayer):
+    player_team_index = x
+    break
 
 
+
+
+counter = 0
+key = tcod.Key()
+mouse = tcod.Mouse()
 exit_game = False
+tcod.console_set_default_foreground(con, tcod.pink)
+### GAME LOOP #################################################################
 while not tcod.console_is_window_closed() and not exit_game:
-  tcod.console_set_default_foreground(0, tcod.pink)
+  tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
 
-  ## Print barricades and lane stripes
-  for row in range(0, 30):
-    for col in range(0, track_width):
 
-      # Print barricades
-      if col == 0 or col == track_width - 1:
-        tcod.console_put_char(0, col, row, race.barricade, tcod.BKGND_NONE)
-
-      else:
-        lane = int(col / (lane_size + 1))
-        col_within_lane = col - (lane * (lane_size + 1))
-
-        # Print lane stripes
-        if col_within_lane == 0:
-          tcod.console_put_char(0, col, row, race.lane_stripe, tcod.BKGND_NONE)
-
-  # Print all vehicles
-  for n in range(0, len(race.teams)):
-    for row in range(0, len(race.teams[n].vehicle.body.rows)):
-      for col in range(0, len(race.teams[n].vehicle.body.rows[row])):
-        x = race.teams[n].vehicle.x + col
-        y = race.teams[n].vehicle.y + row
-        tcod.console_put_char(0, x, y, race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
           
-
+  print_race(con, race)
+  tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0,)
   tcod.console_flush()
 
-   
+  counter += 1   
 
 
   exit_game = handle_keys()
