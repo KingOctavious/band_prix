@@ -4,8 +4,9 @@ import vehicle_bodies
 class Vehicle:
   MAX_COMPONENT_CONDITION = 100
 
-  def __init__(self, body):
-    self.body = Vehicle_Body(body.rows)
+  def __init__(self, body, color):
+    self.body = Vehicle_Body(body.rows) # Do it like this to force copy
+    self.color = color
 
     # Positions based on coordinates of vehicle's top left tile
     self.x = 0

@@ -27,6 +27,18 @@ STRIPE_CHARS = {
 }
 
 
+def apply_collision(vehicle_body, collision_points):
+  for veh_part in collision_points:
+    veh_part_row = veh_part[1]
+    current_body_row = vehicle_body.rows[veh_part_row]
+    new_body_row = ''
+    for index in range(0, len(current_body_row)):
+      if index != veh_part[0]:
+        new_body_row += current_body_row[index]
+      else:
+        new_body_row += '*'
+
+    vehicle_body.rows[veh_part_row] = new_body_row
 
 
 def handle_collisions(race):
@@ -51,11 +63,11 @@ def handle_collisions(race):
         opp_w = opp_vehicle.body.width
         opp_h = opp_vehicle.body.length
 
-        if base_vehicle.x < opp_vehicle.x + opp_vehicle.body.width and base_vehicle.x + base_vehicle.body.width > opp_vehicle.x and base_vehicle.y < opp_vehicle.y + opp_vehicle.body.length and base_vehicle.y + base_vehicle.body.length > opp_vehicle.y:
-          # COLLISION DETECTED!
-          # Now we need to figure out which specific parts of the vehicles collided.
+        # Quicker initial check to see if collision occurred
+        if base_x < opp_x + opp_w and base_x + base_w > opp_x and base_y < opp_y + opp_h and base_y + base_h > opp_y:
+          # COLLISION DETECTED! Now we need to figure out which specific parts of the vehicles collided.
          
-          # This will be a list of lists of tuples
+          # This will be a list of lists of tuples (real coordinates of collision locations)
           base_veh_grid = []
           for row in range(0, base_h):
             current_col_pts = []
@@ -65,11 +77,15 @@ def handle_collisions(race):
             base_veh_grid.append(current_col_pts)
 
 
-          # Now do mostly the same for opp
+          # Now do mostly the same for opp, but instead of adding them to an
+          # `opp_veh_grid` list, we check them on the fly. If any of the opp
+          # vehicle's body part coordinate tuples match one of those in
+          # `base_veh_grid`, then that's where a collision occured. In those
+          # cases, we add the relative body coordinates to each vehicle's list
+          # of collision locations
           opp_veh_collision_pts = []
           base_veh_collision_pts = []
           for row in range(0, opp_h):
-            #current_col_pts = []
             for col in range(0, opp_w):        
               opp_coords = (col + opp_x, row + opp_y)
 
@@ -80,18 +96,12 @@ def handle_collisions(race):
                     opp_veh_collision_pts.append((col, row))
                     base_veh_collision_pts.append((base_col, base_row))
 
+          # Once the actual collision locations are determined, we apply
+          # the collision events to those parts of the vehicles.
 
-          for veh_part in base_veh_collision_pts:
-            veh_part_row = veh_part[1]
-            current_body_row = base_vehicle.body.rows[veh_part_row]
-            new_body_row = ''
-            for index in range(0, len(current_body_row)):
-              if index != veh_part[0]:
-                new_body_row += current_body_row[index]
-              else:
-                new_body_row += '*'
+          apply_collision(base_vehicle.body, base_veh_collision_pts)
+          apply_collision(opp_vehicle.body, opp_veh_collision_pts)
 
-            base_vehicle.body.rows[veh_part_row] = new_body_row
 
           # !!! NEED TO ADD COLLISION CHECK FOR BARRIERS AS WELL
 
@@ -136,7 +146,7 @@ def print_vehicles(con, race):
         x = race.teams[n].vehicle.x + col
         y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, y, race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
-
+        tcod.console_set_char_foreground(con, x, y, race.teams[n].vehicle.color)
 
 def print_race(con, race, distance):
   print_track(con, race.circuit.track_shape, distance)
@@ -159,11 +169,11 @@ tcod.sys_set_fps(LIMIT_FPS)
 
 
 teams = [
-  Team('Kasvot Vaxt', Vehicle(vehicle_bodies.v_bod_1)),
-  Team('ViscDuds', Vehicle(vehicle_bodies.v_bod_1)),
-  Team('The Jack Straw Band', Vehicle(vehicle_bodies.v_bod_1), True),
-  Team('The Billiards', Vehicle(vehicle_bodies.v_bod_1)),
-  Team('Strange Dan Gustafvist', Vehicle(vehicle_bodies.v_bod_1)),
+  Team('Kasvot Vaxt', Vehicle(vehicle_bodies.v_bod_1, tcod.yellow)),
+  Team('ViscDuds', Vehicle(vehicle_bodies.v_bod_1, tcod.green)),
+  Team('The Jack Straw Band', Vehicle(vehicle_bodies.v_bod_1, tcod.pink), True),
+  Team('The Billiards', Vehicle(vehicle_bodies.v_bod_1, tcod.orange)),
+  Team('Strange Dan Gustafvist', Vehicle(vehicle_bodies.v_bod_1, tcod.light_cyan)),
 ]
 
 race = Race(teams, circuits.circuit1)
