@@ -1,4 +1,4 @@
 from circuit import Circuit
 import tracks
 
-circuit1 = Circuit('Circuit of Monanomos', tracks.track1)
+circuit1 = Circuit('Circuit of Monanomos', tracks.track_layout_1)

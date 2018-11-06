@@ -5,6 +5,7 @@ from input_handlers import handle_keys
 from race import Race
 from team import Team
 from time import sleep
+from track_direction import Track_Direction as td
 from vehicle import Vehicle
 from vehicle_body import Vehicle_Body
 import vehicle_bodies
@@ -19,45 +20,44 @@ font_path = 'terminal10x10_gs_tc.png'
 font_flags = tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD
 TURN_BASED = False
 
-# def get_key_event(turn_based=None):
-#   if turn_based:
-#     key = tcod.console_wait_for_keypress(True)
-#   else:
-#     key = tcod.console_check_for_keypress()
-
-#   return key
+STRIPE_CHARS = {
+  td.STRAIGHT: '|',
+  td.LEFT: '\\',
+  td.RIGHT: '/'
+}
 
 
-# def handle_keys():
-#   key = get_key_event(TURN_BASED)
-
-#   # Alt+Enter: toggle fullscreen
-#   if key.vk == tcod.KEY_ENTER and key.lalt:
-#     tcod.console_set_fullscreen(not tcod.console_is_fullscreen())
-#   # Escape: exit game
-#   elif key.vk == tcod.KEY_ESCAPE:
-#     return True
 
 
-def print_track(con, race, distance):
+
+def print_track(con, track_shape_set, distance_traveled):
   lane_count = len(race.teams)
   lane_size = race.lane_size
+  NUM_ROWS_TO_DISPLAY = 30
   track_width = ((lane_size + 1) * lane_count) + 1
 
-  for row in range(0, 30):
-    for col in range(0, track_width):
+  for track_row in range(distance_traveled, distance_traveled + NUM_ROWS_TO_DISPLAY):
+    offset = track_shape_set[track_row][1]
+    left_edge = 0 + offset
+    for col in range(left_edge, track_width + left_edge):
 
       # Print barricades
-      if col == 0 or col == track_width - 1:
-        tcod.console_put_char(con, col, row, race.barricade, tcod.BKGND_NONE)
-
+      if col == left_edge or col == left_edge + track_width + 1:
+        tcod.console_put_char(con, col + offset, track_row, race.barricade, tcod.BKGND_NONE)
+      
+      # Print lane stripes
       else:
         lane = int(col / (lane_size + 1))
         col_within_lane = col - (lane * (lane_size + 1))
 
-        # Print lane stripes
-        if col_within_lane == 0 and row % 3 == 0:
-          tcod.console_put_char(con, col, row, race.lane_stripe, tcod.BKGND_NONE)
+        if col_within_lane == 0:
+          tcod.console_put_char(con, col + offset, distance + NUM_ROWS_TO_DISPLAY - track_row, str(track_shape_set[track_row][0]), tcod.BKGND_NONE)
+
+
+
+
+
+
 
 
 def print_vehicles(con, race):
@@ -71,7 +71,7 @@ def print_vehicles(con, race):
 
 
 def print_race(con, race, distance):
-  print_track(con, race, distance)
+  print_track(con, race.circuit.track_shape, distance)
   print_vehicles(con, race)
 
 
@@ -139,7 +139,7 @@ while not tcod.console_is_window_closed() and not exit_game:
 
 
 
-  sleep(1)
+  #sleep(0.1)
   distance += 1
   ticks += 1
 
