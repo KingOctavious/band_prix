@@ -7,8 +7,8 @@ class Race:
   def __init__(self, teams, circuit):
     self.teams = teams
     self.circuit = circuit
-    
-    self.lane_padding = 1
+
+    self.lane_padding = 2
 
     # All vehicle bodies should be the same width, so we only have to look at
     # the first one.

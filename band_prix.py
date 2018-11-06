@@ -29,6 +29,79 @@ STRIPE_CHARS = {
 
 
 
+def handle_collisions(race):
+  # Compare every vehicle position to every other vehicle position
+  team_count = (len(race.teams))
+  for index in range(0, team_count):
+    base_vehicle = race.teams[index].vehicle
+    base_x = base_vehicle.x
+    base_y = base_vehicle.y
+    base_w = base_vehicle.body.width
+    base_h = base_vehicle.body.length
+
+    if index < team_count - 1:
+      # We only have to check the opponents indexed higher than the currently
+      # checked index, because as we move up in the base index being checked,
+      # it has already been checked against those below it. So, we start
+      # checking at `index + 1`.
+      for opponent_index in range(index + 1, team_count):
+        opp_vehicle = race.teams[opponent_index].vehicle
+        opp_x = opp_vehicle.x
+        opp_y = opp_vehicle.y
+        opp_w = opp_vehicle.body.width
+        opp_h = opp_vehicle.body.length
+
+        if base_vehicle.x < opp_vehicle.x + opp_vehicle.body.width and base_vehicle.x + base_vehicle.body.width > opp_vehicle.x and base_vehicle.y < opp_vehicle.y + opp_vehicle.body.length and base_vehicle.y + base_vehicle.body.length > opp_vehicle.y:
+          # COLLISION DETECTED!
+          # Now we need to figure out which specific parts of the vehicles collided.
+         
+          # This will be a list of lists of tuples
+          base_veh_grid = []
+          for row in range(0, base_h):
+            current_col_pts = []
+            for col in range(0, base_w):
+              current_col_pts.append((col + base_x, row + base_y))
+
+            base_veh_grid.append(current_col_pts)
+
+
+          # Now do mostly the same for opp
+          opp_veh_collision_pts = []
+          base_veh_collision_pts = []
+          for row in range(0, opp_h):
+            #current_col_pts = []
+            for col in range(0, opp_w):        
+              opp_coords = (col + opp_x, row + opp_y)
+
+              for base_row in range(0, len(base_veh_grid)):
+                for base_col in range(0, len(base_veh_grid[base_row])):
+                  if base_veh_grid[base_row][base_col] == opp_coords:
+                    # This is where a collision occurred
+                    opp_veh_collision_pts.append((col, row))
+                    base_veh_collision_pts.append((base_col, base_row))
+                    print('COLLISION!')
+
+
+              #current_col_pts.append((col + opp_x, row + opp_y))
+
+            #opp_veh_grid.append(current_col_pts)
+          for veh_part in base_veh_collision_pts:
+            new_body_row = ''
+            for index in range(0, base_vehicle.body.width):
+              if index != veh_part[1]:
+                new_body_row += base_vehicle.body.rows[veh_part[0]][index]
+              else:
+                new_body_row += '*'
+
+            #base_vehicle.body.rows[veh_part[0]][veh_part[1]] = '*'
+
+            base_vehicle.body.rows[veh_part[0]] = new_body_row
+            #print(base_vehicle.body.rows[veh_part[0]][veh_part[1]])
+
+          # !!! NEED TO ADD COLLISION CHECK FOR BARRIERS AS WELL
+
+
+
 
 def print_track(con, track_shape_set, distance_traveled):
   lane_count = len(race.teams)
@@ -39,13 +112,8 @@ def print_track(con, track_shape_set, distance_traveled):
   for track_row in range(distance_traveled, distance_traveled + NUM_ROWS_TO_DISPLAY):
     offset = track_shape_set[track_row][1]
     left_edge = 0 + offset
-    if offset != 0:
-      print("offset")
-      print(offset)
-      print("left edge")
-      print(left_edge)
-    for col in range(left_edge, track_width + left_edge + 1):
 
+    for col in range(left_edge, track_width + left_edge + 1):
       # Print barricades
       if col == left_edge or col == left_edge + track_width - 1:
         tcod.console_put_char(con, col, distance + NUM_ROWS_TO_DISPLAY - track_row, race.barricade, tcod.BKGND_NONE)
@@ -136,6 +204,8 @@ while not tcod.console_is_window_closed() and not exit_game:
   if exit:
     exit_game = True
 
+  # Check for collisions
+  handle_collisions(race)
 
   tcod.console_clear(con)
   print_race(con, race, distance)
