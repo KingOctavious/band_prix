@@ -39,11 +39,16 @@ def print_track(con, track_shape_set, distance_traveled):
   for track_row in range(distance_traveled, distance_traveled + NUM_ROWS_TO_DISPLAY):
     offset = track_shape_set[track_row][1]
     left_edge = 0 + offset
-    for col in range(left_edge, track_width + left_edge):
+    if offset != 0:
+      print("offset")
+      print(offset)
+      print("left edge")
+      print(left_edge)
+    for col in range(left_edge, track_width + left_edge + 1):
 
       # Print barricades
-      if col == left_edge or col == left_edge + track_width + 1:
-        tcod.console_put_char(con, col + offset, track_row, race.barricade, tcod.BKGND_NONE)
+      if col == left_edge or col == left_edge + track_width - 1:
+        tcod.console_put_char(con, col, distance + NUM_ROWS_TO_DISPLAY - track_row, race.barricade, tcod.BKGND_NONE)
       
       # Print lane stripes
       else:
