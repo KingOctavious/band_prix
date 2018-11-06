@@ -1,6 +1,6 @@
 class Vehicle_Body:
   def __init__(self, rows):
-    self.rows = rows
+    self.rows = rows.copy()
 
     # Every car body should be uniform width all the way down.
     self.width = len(rows[0])

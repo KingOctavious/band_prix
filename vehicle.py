@@ -1,10 +1,11 @@
+from vehicle_body import Vehicle_Body
 import vehicle_bodies
 
 class Vehicle:
   MAX_COMPONENT_CONDITION = 100
 
   def __init__(self, body):
-    self.body = body
+    self.body = Vehicle_Body(body.rows)
 
     # Positions based on coordinates of vehicle's top left tile
     self.x = 0

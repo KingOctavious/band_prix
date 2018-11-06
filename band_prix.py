@@ -79,24 +79,19 @@ def handle_collisions(race):
                     # This is where a collision occurred
                     opp_veh_collision_pts.append((col, row))
                     base_veh_collision_pts.append((base_col, base_row))
-                    print('COLLISION!')
 
 
-              #current_col_pts.append((col + opp_x, row + opp_y))
-
-            #opp_veh_grid.append(current_col_pts)
           for veh_part in base_veh_collision_pts:
+            veh_part_row = veh_part[1]
+            current_body_row = base_vehicle.body.rows[veh_part_row]
             new_body_row = ''
-            for index in range(0, base_vehicle.body.width):
-              if index != veh_part[1]:
-                new_body_row += base_vehicle.body.rows[veh_part[0]][index]
+            for index in range(0, len(current_body_row)):
+              if index != veh_part[0]:
+                new_body_row += current_body_row[index]
               else:
                 new_body_row += '*'
 
-            #base_vehicle.body.rows[veh_part[0]][veh_part[1]] = '*'
-
-            base_vehicle.body.rows[veh_part[0]] = new_body_row
-            #print(base_vehicle.body.rows[veh_part[0]][veh_part[1]])
+            base_vehicle.body.rows[veh_part_row] = new_body_row
 
           # !!! NEED TO ADD COLLISION CHECK FOR BARRIERS AS WELL
 
