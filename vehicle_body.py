@@ -1,4 +1,7 @@
 class Vehicle_Body:
+  COLLISION_EFFECT = '*'
+  DAMAGE_EFFECT = 'x'
+
   def __init__(self, rows):
     self.rows = rows.copy()
 

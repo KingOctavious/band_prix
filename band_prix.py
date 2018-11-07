@@ -36,12 +36,69 @@ def apply_collision(vehicle_body, collision_points):
       if index != veh_part[0]:
         new_body_row += current_body_row[index]
       else:
-        new_body_row += '*'
+        new_body_row += vehicle_body.COLLISION_EFFECT
 
     vehicle_body.rows[veh_part_row] = new_body_row
 
 
-def handle_collisions(race):
+def handle_post_collision(vehicle):
+  # Figure out which side of the car got hit
+  collided_sides = {
+    'front': 0,
+    'left': 0,
+    'right': 0,
+    'rear': 0
+  }
+
+  # Count the colliding vehicle parts on each side to see where the collision
+  # is coming from primarily. At the same time, we also rebuild the row strings
+  # by replacing the collision effect with the damage effect.
+  for row in range(0, len(vehicle.body.rows)):
+    new_row_string = ''
+    for col in range(0, len(vehicle.body.rows[row])):
+      print(col)
+      if vehicle.body.rows[row][col] == vehicle.body.COLLISION_EFFECT:
+        if col == 0:
+          collided_sides['left'] += 1
+        elif col == vehicle.body.width - 1:
+          collided_sides['right'] += 1
+        if row == 0:
+          collided_sides['front'] += 1
+        elif row == len(vehicle.body.rows) - 1:
+          collided_sides['rear'] += 1
+
+        new_row_string += vehicle.body.DAMAGE_EFFECT
+      
+      else:
+        new_row_string += vehicle.body.rows[row][col]
+
+    vehicle.body.rows[row] = new_row_string
+
+  # Now see which side had the most parts in the collision
+  collided_side = 'front'
+  collided_count = collided_sides[collided_side]
+  for side, count in collided_sides.items():
+    if count > collided_count:
+      collided_side = side
+      collided_count = count
+  # Now, `collided_side` is the side that the collision mostly came from.
+
+  # Bounceback happens here
+  if collided_side == 'front':
+    print('front')
+    vehicle.y += 1
+  elif collided_side == 'rear':
+    print('rear')
+    vehicle.y -= 1
+  elif collided_side == 'left':
+    print('eft')
+    vehicle.x += 1
+  elif collided_side == 'right':
+    print('right')
+    vehicle.x -= 1
+      
+
+def handle_collisions(race, colliding_vehicles_holder):
   # Compare every vehicle position to every other vehicle position
   team_count = (len(race.teams))
   for index in range(0, team_count):
@@ -65,6 +122,8 @@ def handle_collisions(race):
 
         # Quicker initial check to see if collision occurred
         if base_x < opp_x + opp_w and base_x + base_w > opp_x and base_y < opp_y + opp_h and base_y + base_h > opp_y:
+          colliding_vehicles_holder.add(base_vehicle)
+          colliding_vehicles_holder.add(opp_vehicle)
           # COLLISION DETECTED! Now we need to figure out which specific parts of the vehicles collided.
          
           # This will be a list of lists of tuples (real coordinates of collision locations)
@@ -194,23 +253,30 @@ ticks = 0
 key = tcod.Key()
 mouse = tcod.Mouse()
 exit_game = False
-tcod.console_set_default_foreground(con, tcod.pink)
+tcod.console_set_default_foreground(con, tcod.white)
+vehicles_collided = set([])
 ### GAME LOOP #################################################################
 while not tcod.console_is_window_closed() and not exit_game:
   tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)         
 
-  action = handle_keys(key)
-  steer = action.get('steer')
-  exit = action.get('exit')
+  for team in teams:
+    if team.vehicle in vehicles_collided:
+      handle_post_collision(team.vehicle)
 
-  if steer:
-    teams[player_team_index].vehicle.x += steer
-  
-  if exit:
-    exit_game = True
+    elif team.isPlayer:
+      action = handle_keys(key)
+      steer = action.get('steer')
+      exit = action.get('exit')
+
+      if steer:
+        teams[player_team_index].vehicle.x += steer
+      
+      if exit:
+        exit_game = True
 
   # Check for collisions
-  handle_collisions(race)
+  vehicles_collided.clear()
+  handle_collisions(race, vehicles_collided)
 
   tcod.console_clear(con)
   print_race(con, race, distance)
