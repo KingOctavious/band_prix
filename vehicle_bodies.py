@@ -1,7 +1,7 @@
 from vehicle_body import Vehicle_Body
 
 body1 = [
-  ' ---- ',
+  '------',
   '/    \\',
   '|    |',
   '|    |',

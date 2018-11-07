@@ -1,8 +1,4 @@
 class Race:
-  barricade = '='
-  lane_stripe = '|'
-
-
 
   def __init__(self, teams, circuit):
     self.teams = teams

@@ -9,6 +9,7 @@ from track_direction import Track_Direction as td
 from vehicle import Vehicle
 from vehicle_body import Vehicle_Body
 import vehicle_bodies
+import visuals
 
 
 SCREEN_WIDTH = 80
@@ -20,11 +21,6 @@ font_path = 'terminal10x10_gs_tc.png'
 font_flags = tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD
 TURN_BASED = False
 
-STRIPE_CHARS = {
-  td.STRAIGHT: '|',
-  td.LEFT: '\\',
-  td.RIGHT: '/'
-}
 
 
 def apply_collision(vehicle_body, collision_points):
@@ -36,7 +32,7 @@ def apply_collision(vehicle_body, collision_points):
       if index != veh_part[0]:
         new_body_row += current_body_row[index]
       else:
-        new_body_row += vehicle_body.COLLISION_EFFECT
+        new_body_row += visuals.COLLISION_EFFECT
 
     vehicle_body.rows[veh_part_row] = new_body_row
 
@@ -56,8 +52,7 @@ def handle_post_collision(vehicle):
   for row in range(0, len(vehicle.body.rows)):
     new_row_string = ''
     for col in range(0, len(vehicle.body.rows[row])):
-      print(col)
-      if vehicle.body.rows[row][col] == vehicle.body.COLLISION_EFFECT:
+      if vehicle.body.rows[row][col] == visuals.COLLISION_EFFECT:
         if col == 0:
           collided_sides['left'] += 1
         elif col == vehicle.body.width - 1:
@@ -67,7 +62,7 @@ def handle_post_collision(vehicle):
         elif row == len(vehicle.body.rows) - 1:
           collided_sides['rear'] += 1
 
-        new_row_string += vehicle.body.DAMAGE_EFFECT
+        new_row_string += visuals.DAMAGE_EFFECT
       
       else:
         new_row_string += vehicle.body.rows[row][col]
@@ -85,20 +80,19 @@ def handle_post_collision(vehicle):
 
   # Bounceback happens here
   if collided_side == 'front':
-    print('front')
     vehicle.y += 1
   elif collided_side == 'rear':
-    print('rear')
     vehicle.y -= 1
   elif collided_side == 'left':
-    print('eft')
     vehicle.x += 1
   elif collided_side == 'right':
-    print('right')
     vehicle.x -= 1
       
 
-def handle_collisions(race, colliding_vehicles_holder):
+def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holder):
+  print('size {}'.format(len(barricade_locations_holder)))
+  for thing in barricade_locations_holder:
+    print('{}, {}'.format(thing[0], thing[1]))
   # Compare every vehicle position to every other vehicle position
   team_count = (len(race.teams))
   for index in range(0, team_count):
@@ -107,8 +101,18 @@ def handle_collisions(race, colliding_vehicles_holder):
     base_y = base_vehicle.y
     base_w = base_vehicle.body.width
     base_h = base_vehicle.body.length
+    base_veh_collision_pts = [] # Holds x, y tuples
 
     if index < team_count - 1:
+      # Check for collisions with barricades
+      for y in range(base_y, base_y + base_h - 1):
+        for x in range(base_x, base_x + base_w - 1):
+          if (x, y) in barricade_locations_holder:
+            base_veh_collision_pts.append((x - base_x, y - base_y))
+            colliding_vehicles_holder.add(base_vehicle)
+            apply_collision(base_vehicle.body, base_veh_collision_pts)
+      # Done checking barricade collisions
+
       # We only have to check the opponents indexed higher than the currently
       # checked index, because as we move up in the base index being checked,
       # it has already been checked against those below it. So, we start
@@ -122,9 +126,9 @@ def handle_collisions(race, colliding_vehicles_holder):
 
         # Quicker initial check to see if collision occurred
         if base_x < opp_x + opp_w and base_x + base_w > opp_x and base_y < opp_y + opp_h and base_y + base_h > opp_y:
+          # COLLISION DETECTED! Now we need to figure out which specific parts of the vehicles collided.
           colliding_vehicles_holder.add(base_vehicle)
           colliding_vehicles_holder.add(opp_vehicle)
-          # COLLISION DETECTED! Now we need to figure out which specific parts of the vehicles collided.
          
           # This will be a list of lists of tuples (real coordinates of collision locations)
           base_veh_grid = []
@@ -143,7 +147,6 @@ def handle_collisions(race, colliding_vehicles_holder):
           # cases, we add the relative body coordinates to each vehicle's list
           # of collision locations
           opp_veh_collision_pts = []
-          base_veh_collision_pts = []
           for row in range(0, opp_h):
             for col in range(0, opp_w):        
               opp_coords = (col + opp_x, row + opp_y)
@@ -157,17 +160,14 @@ def handle_collisions(race, colliding_vehicles_holder):
 
           # Once the actual collision locations are determined, we apply
           # the collision events to those parts of the vehicles.
-
           apply_collision(base_vehicle.body, base_veh_collision_pts)
           apply_collision(opp_vehicle.body, opp_veh_collision_pts)
 
 
-          # !!! NEED TO ADD COLLISION CHECK FOR BARRIERS AS WELL
 
 
-
-
-def print_track(con, track_shape_set, distance_traveled):
+def print_track(con, track_shape_set, distance_traveled, barricade_locations_holder):
+  barricade_locations_holder.clear()
   lane_count = len(race.teams)
   lane_size = race.lane_size
   NUM_ROWS_TO_DISPLAY = 30
@@ -180,7 +180,8 @@ def print_track(con, track_shape_set, distance_traveled):
     for col in range(left_edge, track_width + left_edge + 1):
       # Print barricades
       if col == left_edge or col == left_edge + track_width - 1:
-        tcod.console_put_char(con, col, distance + NUM_ROWS_TO_DISPLAY - track_row, race.barricade, tcod.BKGND_NONE)
+        barricade_locations_holder.append((col, distance + NUM_ROWS_TO_DISPLAY - track_row))
+        tcod.console_put_char(con, col, distance + NUM_ROWS_TO_DISPLAY - track_row, visuals.BARRICADE, tcod.BKGND_NONE)
       
       # Print lane stripes
       else:
@@ -189,7 +190,6 @@ def print_track(con, track_shape_set, distance_traveled):
 
         if col_within_lane == 0:
           tcod.console_put_char(con, col + offset, distance + NUM_ROWS_TO_DISPLAY - track_row, str(track_shape_set[track_row][0]), tcod.BKGND_NONE)
-
 
 
 
@@ -207,8 +207,8 @@ def print_vehicles(con, race):
         tcod.console_put_char(con, x, y, race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, y, race.teams[n].vehicle.color)
 
-def print_race(con, race, distance):
-  print_track(con, race.circuit.track_shape, distance)
+def print_race(con, race, distance, barricade_locations_holder):
+  print_track(con, race.circuit.track_shape, distance, barricade_locations_holder)
   print_vehicles(con, race)
 
 
@@ -248,6 +248,7 @@ for x in range(0, len(race.teams)):
 
 
 
+barricade_locations = [] # holds tuples of x, y barricade locations
 distance = 0
 ticks = 0
 key = tcod.Key()
@@ -274,12 +275,19 @@ while not tcod.console_is_window_closed() and not exit_game:
       if exit:
         exit_game = True
 
+    # DEBUG
+    if team == teams[0]:
+      for x in range(team.vehicle.x, team.vehicle.x + team.vehicle.body.width):
+        for y in range(team.vehicle.y, team.vehicle.y + team.vehicle.body.length):
+          tup = (x,y)
+          print('_{}, {}'.format(tup[0], tup[1]))
+
   # Check for collisions
   vehicles_collided.clear()
-  handle_collisions(race, vehicles_collided)
+  handle_collisions(race, vehicles_collided, barricade_locations)
 
   tcod.console_clear(con)
-  print_race(con, race, distance)
+  print_race(con, race, distance, barricade_locations)
   tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0,)
   tcod.console_flush()
 
