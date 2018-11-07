@@ -1,6 +1,7 @@
 import libtcodpy as tcod
 
 import circuits
+import global_data as g
 from input_handlers import handle_keys
 from race import Race
 from team import Team
@@ -17,8 +18,18 @@ SCREEN_HEIGHT = 50
 LIMIT_FPS = 20
 fullscreen = False
 GAME_TITLE = 'Band Prix'
-font_path = 'terminal10x10_gs_tc.png'
-font_flags = tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD
+#font_path = 'arial10x10.png'
+#font_path = 'arial12x12.png'
+#font_path = 'consolas10x10_gs_tc.png'
+#font_path  = 'lucida12x12_gs_tc.png'
+#font_path  = 'terminal10x10_gs_tc.png'
+
+#layout = tcod.FONT_LAYOUT_TCOD
+
+font_path  = 'terminal16x16_gs_ro.png'
+layout = tcod.FONT_LAYOUT_ASCII_INROW
+
+font_flags = tcod.FONT_TYPE_GREYSCALE | layout
 TURN_BASED = False
 
 
@@ -69,24 +80,31 @@ def handle_post_collision(vehicle):
 
     vehicle.body.rows[row] = new_row_string
 
-  # Now see which side had the most parts in the collision
-  collided_side = 'front'
-  collided_count = collided_sides[collided_side]
+  # Now figure out which direction the car should bounce back
+  # (based on which side(s) have the most)
+  bounce_directions = [] # Because might go back/left, forward/right, etc.
+  max_collided_count = 0
   for side, count in collided_sides.items():
-    if count > collided_count:
-      collided_side = side
-      collided_count = count
-  # Now, `collided_side` is the side that the collision mostly came from.
+    if count > 0:
+      if len(bounce_directions) == 0:
+        bounce_directions.append(g.SIDE_OPPOSITES[side])
+        max_collided_count = count
+      elif count == max_collided_count:
+        bounce_directions.append(g.SIDE_OPPOSITES[side])
+      elif count > max_collided_count:
+        # Clear `bounce_directions` and add this one if it is dominant.
+        bounce_directions = [g.SIDE_OPPOSITES[side]]
+        max_collided_count = count
 
   # Bounceback happens here
-  if collided_side == 'front':
-    vehicle.y += 1
-  elif collided_side == 'rear':
+  if 'front' in bounce_directions:
     vehicle.y -= 1
-  elif collided_side == 'left':
-    vehicle.x += 1
-  elif collided_side == 'right':
+  if 'rear' in bounce_directions:
+    vehicle.y += 1
+  if 'left' in bounce_directions:
     vehicle.x -= 1
+  if 'right' in bounce_directions:
+    vehicle.x += 1
       
 
 def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holder):
@@ -275,12 +293,6 @@ while not tcod.console_is_window_closed() and not exit_game:
       if exit:
         exit_game = True
 
-    # DEBUG
-    if team == teams[0]:
-      for x in range(team.vehicle.x, team.vehicle.x + team.vehicle.body.width):
-        for y in range(team.vehicle.y, team.vehicle.y + team.vehicle.body.length):
-          tup = (x,y)
-          print('_{}, {}'.format(tup[0], tup[1]))
 
   # Check for collisions
   vehicles_collided.clear()
