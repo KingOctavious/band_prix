@@ -13,7 +13,8 @@ class Vehicle:
     self.y = 0
 
     self.distance_traveled = 0
-    self.speed = 0
+    self.speed = 0 # tiles per second
+    self.max_speed = 30
 
     self.components_condition = {
       'engine': self.MAX_COMPONENT_CONDITION,
@@ -25,5 +26,5 @@ class Vehicle:
       'rear right tire': self.MAX_COMPONENT_CONDITION
     }
 
-  def printBody(self):
-    self.body.printBody()
+  def advance(self, distance=1):
+    self.distance_traveled += distance

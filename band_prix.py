@@ -15,7 +15,10 @@ import visuals
 
 SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 50
-LIMIT_FPS = 20
+FPS_CAP = 30
+#frame_render_time = 1 / FPS_CAP
+#print("RENDER TIME:")
+#print(frame_render_time)
 fullscreen = False
 GAME_TITLE = 'Band Prix'
 #font_path = 'arial10x10.png'
@@ -108,9 +111,6 @@ def handle_post_collision(vehicle):
       
 
 def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holder):
-  print('size {}'.format(len(barricade_locations_holder)))
-  for thing in barricade_locations_holder:
-    print('{}, {}'.format(thing[0], thing[1]))
   # Compare every vehicle position to every other vehicle position
   team_count = (len(race.teams))
   for index in range(0, team_count):
@@ -182,8 +182,6 @@ def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holde
           apply_collision(opp_vehicle.body, opp_veh_collision_pts)
 
 
-
-
 def print_track(con, track_shape_set, distance_traveled, barricade_locations_holder):
   barricade_locations_holder.clear()
   lane_count = len(race.teams)
@@ -198,8 +196,8 @@ def print_track(con, track_shape_set, distance_traveled, barricade_locations_hol
     for col in range(left_edge, track_width + left_edge + 1):
       # Print barricades
       if col == left_edge or col == left_edge + track_width - 1:
-        barricade_locations_holder.append((col, distance + NUM_ROWS_TO_DISPLAY - track_row))
-        tcod.console_put_char(con, col, distance + NUM_ROWS_TO_DISPLAY - track_row, visuals.BARRICADE, tcod.BKGND_NONE)
+        barricade_locations_holder.append((col, distance_traveled + NUM_ROWS_TO_DISPLAY - track_row))
+        tcod.console_put_char(con, col, distance_traveled + NUM_ROWS_TO_DISPLAY - track_row, visuals.BARRICADE, tcod.BKGND_NONE)
       
       # Print lane stripes
       else:
@@ -207,12 +205,7 @@ def print_track(con, track_shape_set, distance_traveled, barricade_locations_hol
         col_within_lane = col - (lane * (lane_size + 1))
 
         if col_within_lane == 0:
-          tcod.console_put_char(con, col + offset, distance + NUM_ROWS_TO_DISPLAY - track_row, str(track_shape_set[track_row][0]), tcod.BKGND_NONE)
-
-
-
-
-
+          tcod.console_put_char(con, col + offset, distance_traveled + NUM_ROWS_TO_DISPLAY - track_row, str(track_shape_set[track_row][0]), tcod.BKGND_NONE)
 
 
 def print_vehicles(con, race):
@@ -224,6 +217,7 @@ def print_vehicles(con, race):
         y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, y, race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, y, race.teams[n].vehicle.color)
+
 
 def print_race(con, race, distance, barricade_locations_holder):
   print_track(con, race.circuit.track_shape, distance, barricade_locations_holder)
@@ -240,7 +234,7 @@ def print_race(con, race, distance, barricade_locations_holder):
 tcod.console_set_custom_font(font_path, font_flags)
 tcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE, fullscreen)
 con = tcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
-tcod.sys_set_fps(LIMIT_FPS)
+tcod.sys_set_fps(FPS_CAP)
 
 
 
@@ -267,17 +261,28 @@ for x in range(0, len(race.teams)):
 
 
 barricade_locations = [] # holds tuples of x, y barricade locations
-distance = 0
 ticks = 0
 key = tcod.Key()
 mouse = tcod.Mouse()
 exit_game = False
 tcod.console_set_default_foreground(con, tcod.white)
 vehicles_collided = set([])
+
+tiles_per_second = 5
+seconds_per_tile = 1 / tiles_per_second
+# so move forward once every `seconds_per_tile`
+# constantly update veh.distance_traveled as int(speed / TOTAL time of race)
+
 ### GAME LOOP #################################################################
+race_start_time = tcod.sys_elapsed_seconds()
+distance_traveled = 0
+
+for team in teams:
+  team.vehicle.speed = team.vehicle.max_speed
 while not tcod.console_is_window_closed() and not exit_game:
   tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)         
 
+  time_elapsed_since_start = tcod.sys_elapsed_seconds() - race_start_time
   for team in teams:
     if team.vehicle in vehicles_collided:
       handle_post_collision(team.vehicle)
@@ -292,21 +297,19 @@ while not tcod.console_is_window_closed() and not exit_game:
       
       if exit:
         exit_game = True
-
+    distance_traveled = time_elapsed_since_start * team.vehicle.speed
+    team.vehicle.advance(int(distance_traveled))
 
   # Check for collisions
   vehicles_collided.clear()
   handle_collisions(race, vehicles_collided, barricade_locations)
 
   tcod.console_clear(con)
-  print_race(con, race, distance, barricade_locations)
+  print_race(con, race, int(distance_traveled), barricade_locations)
   tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0,)
   tcod.console_flush()
 
-
-
   #sleep(0.1)
-  distance += 1
-  ticks += 1
+
 
 quit()
