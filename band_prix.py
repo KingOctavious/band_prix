@@ -249,7 +249,10 @@ teams = [
   Team('Strange Dan Gustafvist', Vehicle(vehicle_bodies.v_bod_1, tcod.light_cyan)),
 ]
 
-teams[0].vehicle.max_speed = 4
+# debug
+teams[0].vehicle.max_speed = 1
+teams[2].vehicle.acceleration = 3
+teams[3].vehicle.acceleration = 4
 
 race = Race(teams, circuits.circuit1)
 
@@ -271,6 +274,7 @@ mouse = tcod.Mouse()
 exit_game = False
 speed_increase_this_turn = 0
 tcod.console_set_default_foreground(con, tcod.white)
+last_time_accelerated = 0
 second_counter = 0 # tracks when 1 or more seconds have passed
 vehicles_collided = set([])
 ### GAME LOOP #################################################################
@@ -281,11 +285,12 @@ while not tcod.console_is_window_closed() and not exit_game:
 
   # Acceleration is applied once every second.
   total_time_elapsed = tcod.sys_elapsed_seconds()
-  time_elapsed_last_frame = tcod.sys_get_last_frame_length()
-  if int(second_counter) > 0:
-    second_counter = 0
-  second_counter += time_elapsed_last_frame
-  print(second_counter)
+  time_elapsed_last_frame = tcod.sys_get_last_frame_length() # !! remove?
+  time_passed_since_last_reset = int(total_time_elapsed) - int(last_time_accelerated)
+  print('speed increase: {}'.format(speed_increase_this_turn))
+  if (time_passed_since_last_reset > 0):
+    last_time_accelerated = total_time_elapsed
+
   for team in teams:
     if team.vehicle in vehicles_collided:
       handle_post_collision(team.vehicle)
@@ -301,16 +306,10 @@ while not tcod.console_is_window_closed() and not exit_game:
       if exit:
         exit_game = True
 
-    print('real counter compared to inted counter: {}:{}'.format(second_counter, int(second_counter)))
-    speed_increase_this_turn = int(second_counter) * team.vehicle.acceleration
-    print('accel: {}'.format(team.vehicle.acceleration))
-    print('speed increase this turn: {}'.format(speed_increase_this_turn))
-    team.vehicle.speed += speed_increase_this_turn
+    team.vehicle.speed += time_passed_since_last_reset * team.vehicle.acceleration
     if team.vehicle.speed > team.vehicle.max_speed:
       team.vehicle.speed = team.vehicle.max_speed
-    print('vehicle speed is: {}'.format(team.vehicle.speed))
     team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
-    print('distance traveled: {}'.format(team.vehicle.distance_traveled))
 
   # Check for collisions
   vehicles_collided.clear()
