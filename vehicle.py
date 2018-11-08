@@ -14,7 +14,7 @@ class Vehicle:
 
     self.distance_traveled = 0
     self.speed = 0 # tiles per second
-    self.max_speed = 30
+    self.max_speed = 20
 
     self.components_condition = {
       'engine': self.MAX_COMPONENT_CONDITION,
