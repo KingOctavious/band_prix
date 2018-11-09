@@ -15,6 +15,16 @@ import vehicle_bodies
 import visuals
 
 
+def check_key_char_input(pressed_key_char, lyrics, active_lyrics_character):
+  target_char = lyrics[active_lyrics_character].lower()
+  correct = pressed_key_char.lower() == target_char
+  
+  if correct:
+    return active_lyrics_character + 1
+  else:
+    return active_lyrics_character
+
+
 
 FPS_CAP = 60
 #frame_render_time = 1 / FPS_CAP
@@ -70,7 +80,8 @@ teams[2].vehicle.acceleration = 3
 teams[3].vehicle.acceleration = 4
 teams[3].vehicle.max_speed = 4
 
-race = Race(teams, circuits.circuit1)
+lyrics = "This is what space smells like"
+race = Race(teams, circuits.circuit1, lyrics)
 
 # Figure out which team index is the player's team and reset their distance_traveled
 player_team_index = 0
@@ -92,10 +103,12 @@ speed_increase_this_turn = 0
 tcod.console_set_default_foreground(con, tcod.white)
 last_time_accelerated = 0
 vehicles_collided = set([])
+active_lyrics_character = 0
 ### GAME LOOP #################################################################
 race_start_time = tcod.sys_elapsed_seconds()
 
 while not tcod.console_is_window_closed() and not exit_game:
+  active_key_char = race.lyrics[active_lyrics_character]
   tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)         
 
   total_time_elapsed = tcod.sys_elapsed_seconds()
@@ -113,8 +126,13 @@ while not tcod.console_is_window_closed() and not exit_game:
     # Control player vehicle
     elif team.isPlayer:
       action = handle_keys(key)
+
+      pressed_key_char = action.get('key_char')
       steer = action.get('steer')
       exit = action.get('exit')
+
+      if pressed_key_char:
+        active_lyrics_character = check_key_char_input(pressed_key_char, lyrics, active_lyrics_character)
 
       if steer:
         teams[player_team_index].vehicle.x += steer
@@ -138,7 +156,7 @@ while not tcod.console_is_window_closed() and not exit_game:
   tcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0,)
 
   tcod.console_clear(panel)
-  print_lyrics(panel, 'This is what space smells like', 6)
+  print_lyrics(panel, race.lyrics, active_lyrics_character)
   tcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
 
   tcod.console_flush()

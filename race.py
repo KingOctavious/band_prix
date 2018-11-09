@@ -1,8 +1,9 @@
 class Race:
 
-  def __init__(self, teams, circuit):
+  def __init__(self, teams, circuit, lyrics):
     self.teams = teams
     self.circuit = circuit
+    self.lyrics = lyrics
 
     self.lane_padding = 2
 
