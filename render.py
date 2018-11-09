@@ -2,12 +2,15 @@ import libtcodpy as tcod
 from race import Race
 import visuals
 
-def print_lyrics(panel, lyrics):
+def print_lyrics(panel, text):
   tcod.console_set_default_foreground(panel, tcod.red)
-  #tcod.console_print_rect(panel, 0, 0, tcod.console_get_width(panel), tcod.console_get_height(panel), lyrics)
-  #x = tcod.console_get_width(panel)/2
-  tcod.console_print_ex(panel, int(tcod.console_get_width(panel)/2), 0, tcod.BKGND_DEFAULT, tcod.CENTER, lyrics)
+  tcod.console_set_default_background(panel, tcod.black)
+  
+  tcod.console_set_color_control(tcod.COLCTRL_1, tcod.red, tcod.black)
+  tcod.console_set_color_control(tcod.COLCTRL_2, tcod.black, tcod.red)
 
+  tcod.console_print_rect_ex(panel, int(tcod.console_get_width(panel)/2), 0, tcod.console_get_width(panel), tcod.console_get_height(panel), tcod.BKGND_SET, tcod.CENTER, 'This is a %ctest%c string'%(tcod.COLCTRL_2, tcod.COLCTRL_STOP))
+  #tcod.console_print_rect_ex(panel, 0, 3, w, h, tcod.green, tcod.CENTER, 'This is a %ctest%c string'%(tcod.COLCTRL_2, tcod.COLCTRL_STOP))
 
 
 def print_track(con, race, distance_traveled_by_player, barricade_locations_holder):
