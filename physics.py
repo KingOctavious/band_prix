@@ -1,3 +1,4 @@
+import global_data as g
 import visuals
 
 def apply_collision(vehicle_body, collision_points):

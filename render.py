@@ -2,6 +2,14 @@ import libtcodpy as tcod
 from race import Race
 import visuals
 
+def print_lyrics(panel, lyrics):
+  tcod.console_set_default_foreground(panel, tcod.red)
+  #tcod.console_print_rect(panel, 0, 0, tcod.console_get_width(panel), tcod.console_get_height(panel), lyrics)
+  #x = tcod.console_get_width(panel)/2
+  tcod.console_print_ex(panel, int(tcod.console_get_width(panel)/2), 0, tcod.BKGND_DEFAULT, tcod.CENTER, lyrics)
+
+
+
 def print_track(con, race, distance_traveled_by_player, barricade_locations_holder):
   barricade_locations_holder.clear()
   lane_count = len(race.teams)

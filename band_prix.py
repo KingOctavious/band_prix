@@ -5,7 +5,7 @@ import global_data as g
 from input_handlers import handle_keys
 from physics import *
 from race import Race
-from render import print_race
+from render import print_race, print_lyrics
 from team import Team
 from time import sleep
 from track_direction import Track_Direction as td
@@ -15,8 +15,7 @@ import vehicle_bodies
 import visuals
 
 
-SCREEN_WIDTH = 80
-SCREEN_HEIGHT = 50
+
 FPS_CAP = 30
 #frame_render_time = 1 / FPS_CAP
 #print("RENDER TIME:")
@@ -40,10 +39,19 @@ TURN_BASED = False
 
 
 
+screen_width = 80
+screen_height = 50
+panel_height = 7
+panel_y = screen_height - panel_height
 
 tcod.console_set_custom_font(font_path, font_flags)
-tcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE, fullscreen)
-con = tcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
+tcod.console_init_root(screen_width, screen_height, GAME_TITLE, fullscreen)
+
+con = tcod.console_new(screen_width, screen_height)
+
+panel = tcod.console_new(screen_width, panel_height)
+tcod.console_set_alignment(panel, tcod.LEFT)
+
 tcod.sys_set_fps(FPS_CAP)
 
 
@@ -60,6 +68,7 @@ teams = [
 teams[0].vehicle.max_speed = 1
 teams[2].vehicle.acceleration = 3
 teams[3].vehicle.acceleration = 4
+teams[3].vehicle.max_speed = 4
 
 race = Race(teams, circuits.circuit1)
 
@@ -126,7 +135,12 @@ while not tcod.console_is_window_closed() and not exit_game:
   # Render
   tcod.console_clear(con)
   print_race(con, race, int(teams[player_team_index].vehicle.distance_traveled), barricade_locations)
-  tcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0,)
+  tcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0,)
+
+  tcod.console_clear(panel)
+  print_lyrics(panel, 'This is what space smells like')
+  tcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
+
   tcod.console_flush()
 
 
