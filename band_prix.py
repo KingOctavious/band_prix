@@ -104,13 +104,19 @@ tcod.console_set_default_foreground(con, tcod.white)
 last_time_accelerated = 0
 vehicles_collided = set([])
 active_lyrics_character = 0
+keypress_timer = 0.0
+time_for_this_key = 99999
 ### GAME LOOP #################################################################
 race_start_time = tcod.sys_elapsed_seconds()
+
+# debug
+all_time_recorded = []
 
 while not tcod.console_is_window_closed() and not exit_game:
   active_key_char = race.lyrics[active_lyrics_character]
   tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)         
 
+  keypress_timer += tcod.sys_get_last_frame_length()
   total_time_elapsed = tcod.sys_elapsed_seconds()
   time_elapsed_last_frame = tcod.sys_get_last_frame_length()
   # Acceleration is applied once every second.
@@ -134,7 +140,13 @@ while not tcod.console_is_window_closed() and not exit_game:
       if pressed_key_char:
         correct = check_key_char_input(pressed_key_char, lyrics, active_lyrics_character)
         if correct:
+          if active_lyrics_character > 0:
+            time_for_this_key = keypress_timer
+            all_time_recorded.append(time_for_this_key)
+            #print('avg time: {}'.format(sum(all_time_recorded) / len(all_time_recorded)))
+            print(g.get_accel_from_keyspeed(time_for_this_key))
           active_lyrics_character += 1
+          keypress_timer = 0.0
         else:
           pass
 
@@ -148,6 +160,8 @@ while not tcod.console_is_window_closed() and not exit_game:
     team.vehicle.speed += time_passed_since_last_reset * team.vehicle.acceleration
     if team.vehicle.speed > team.vehicle.max_speed:
       team.vehicle.speed = team.vehicle.max_speed
+    elif team.vehicle.speed < 0:
+      team.vehicle.speed = 0
     team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
 
   # Check for collisions
