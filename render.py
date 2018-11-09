@@ -3,11 +3,18 @@ from race import Race
 import visuals
 
 def print_lyrics(panel, lyrics, active_character):
-  tcod.console_set_default_foreground(panel, tcod.red)
+  # primary_color = tcod.cyan
+  # primary_color_dark = tcod.darkest_cyan
+  # primary_color = tcod.turquoise
+  # primary_color_dark = tcod.darkest_turquoise
+  primary_color = tcod.sea
+  primary_color_dark = tcod.darkest_sea
+
+  tcod.console_set_default_foreground(panel, primary_color)
   tcod.console_set_default_background(panel, tcod.black)
   
-  tcod.console_set_color_control(tcod.COLCTRL_1, tcod.blue, tcod.black)
-  tcod.console_set_color_control(tcod.COLCTRL_2, tcod.black, tcod.red)
+  tcod.console_set_color_control(tcod.COLCTRL_1, primary_color_dark, tcod.black)
+  tcod.console_set_color_control(tcod.COLCTRL_2, tcod.black, primary_color)
 
   lyrics_pre_active = '%c{}%c'.format(lyrics[:active_character])%(tcod.COLCTRL_1, tcod.COLCTRL_STOP)
   lyrics_active = '%c{}%c'.format(lyrics[active_character])%(tcod.COLCTRL_2, tcod.COLCTRL_STOP)
