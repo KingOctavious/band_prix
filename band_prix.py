@@ -20,9 +20,9 @@ def check_key_char_input(pressed_key_char, lyrics, active_lyrics_character):
   correct = pressed_key_char.lower() == target_char
   
   if correct:
-    return active_lyrics_character + 1
+    return True
   else:
-    return active_lyrics_character
+    return False
 
 
 
@@ -132,7 +132,11 @@ while not tcod.console_is_window_closed() and not exit_game:
       exit = action.get('exit')
 
       if pressed_key_char:
-        active_lyrics_character = check_key_char_input(pressed_key_char, lyrics, active_lyrics_character)
+        correct = check_key_char_input(pressed_key_char, lyrics, active_lyrics_character)
+        if correct:
+          active_lyrics_character += 1
+        else:
+          pass
 
       if steer:
         teams[player_team_index].vehicle.x += steer
