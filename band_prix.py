@@ -16,7 +16,7 @@ import visuals
 
 
 
-FPS_CAP = 30
+FPS_CAP = 60
 #frame_render_time = 1 / FPS_CAP
 #print("RENDER TIME:")
 #print(frame_render_time)

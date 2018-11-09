@@ -25,6 +25,7 @@ def print_lyrics(panel, lyrics, active_character):
   y = 0
   w = tcod.console_get_width(panel)
   h = tcod.console_get_height(panel)
+  
   tcod.console_print_rect_ex(panel, x, y, w, h, tcod.BKGND_SET, tcod.CENTER, formatted_lyrics)
 
 
