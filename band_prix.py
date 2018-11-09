@@ -138,7 +138,7 @@ while not tcod.console_is_window_closed() and not exit_game:
   tcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0,)
 
   tcod.console_clear(panel)
-  print_lyrics(panel, 'This is what space smells like')
+  print_lyrics(panel, 'This is what space smells like', 6)
   tcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
 
   tcod.console_flush()
