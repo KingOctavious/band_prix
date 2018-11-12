@@ -2,6 +2,7 @@ import libtcodpy as tcod
 
 import global_data as g
 from race import Race
+from track_direction import Track_Direction as td
 import visuals
 
 def print_lyrics(panel, lyrics, active_character):
@@ -38,8 +39,13 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
   track_width = ((lane_size + 1) * lane_count) + 1
 
   for track_row in range(int(distance_traveled_by_player), int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY):
-    offset = race.circuit.track_shape[track_row][1]
+    track_length = len(race.circuit.track_shape)
+    if track_row < track_length:
+      offset = race.circuit.track_shape[track_row][1]
+    else:
+      offset = race.circuit.track_shape[track_length - 1][1]
     left_edge = 0 + offset
+
 
     for col in range(left_edge, track_width + left_edge + 1):
       # Print barricades
@@ -53,7 +59,17 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
         col_within_lane = col - (lane * (lane_size + 1))
 
         if col_within_lane == 0:
-          tcod.console_put_char(con, col + offset, int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY - track_row, str(race.circuit.track_shape[track_row][0]), tcod.BKGND_NONE)
+          if track_row < track_length:
+            lane_stripe = str(race.circuit.track_shape[track_row][0])
+          else:
+            lane_stripe = race.circuit.STRIPE_CHARS[td.STRAIGHT]
+          tcod.console_put_char(con, col + offset, int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY - track_row, lane_stripe, tcod.BKGND_NONE)
+          
+          
+
+      # Print finish line at end
+      if track_row == track_length:
+        tcod.console_put_char(con, col + offset, int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY - track_row, '-', tcod.BKGND_NONE)
 
 
 def print_vehicles(con, race, distance_traveled_by_player):

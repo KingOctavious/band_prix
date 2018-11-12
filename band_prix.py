@@ -148,15 +148,13 @@ while not tcod.console_is_window_closed() and not exit_game:
     # Control player vehicle
     elif team.isPlayer:
       action = handle_keys(key)
-
       pressed_key_char = action.get('key_char')
       steer = action.get('steer')
       exit = action.get('exit')
-
       powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
       team.vehicle.apply_power(powerpct)
       #debug 
-      #team.vehicle.apply_power(.9)
+      team.vehicle.apply_power(.9)
 
       if pressed_key_char:
         correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
@@ -180,7 +178,8 @@ while not tcod.console_is_window_closed() and not exit_game:
 
     # If team is not player
     else:
-      team.vehicle.apply_power(random.uniform(0.33, 1.00))
+      #team.vehicle.apply_power(random.uniform(0.33, 1.00))
+      team.vehicle.apply_power(0.33)
 
     # Apply acceleration, determine speed
     speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
