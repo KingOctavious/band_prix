@@ -14,10 +14,10 @@ class Vehicle:
 
     self.distance_traveled = 0
     self.speed = 0 # tiles per second
-    self.max_speed = 10
+    self.max_speed = 30
     self.current_max_speed_from_power = 0
     self.acceleration = 0
-    self.max_acceleration = 3 # speed units per second
+    self.max_acceleration = 6 # speed units per second
 
     self.components_condition = {
       'engine': self.MAX_COMPONENT_CONDITION,
@@ -35,10 +35,10 @@ class Vehicle:
       self.acceleration = round(power_percentage * self.max_acceleration)
 
     else:
-      self.current_max_speed_from_power -= 1
+      self.current_max_speed_from_power -= 0.1
       if self.current_max_speed_from_power < 0:
         self.current_max_speed_from_power = 0
-      self.acceleration -= 1
+      self.acceleration -= 0.1
       if self.acceleration < 0:
         self.acceleration = 0
 

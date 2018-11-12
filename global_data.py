@@ -23,7 +23,6 @@ def get_accel_from_keyspeed(keyspeed):
     if keyspeed <= time:
       determined_accel = accel
       break
-  
   return determined_accel
 
 # KEYSPEED_POWERPCT
@@ -32,8 +31,8 @@ def get_accel_from_keyspeed(keyspeed):
 # accleration and the highest possible speed.
 KEYSPEED_POWERPCT = collections.OrderedDict({
   0.09: 1.00,
-  0.18: 0.66,
-  0.24: 0.33
+  0.15: 0.66,
+  0.22: 0.33
 })
 
 def get_powerpct_from_keyspeed(keyspeed):

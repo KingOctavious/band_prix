@@ -138,10 +138,7 @@ while not tcod.console_is_window_closed() and not exit_game:
   keypress_timer += tcod.sys_get_last_frame_length()
   total_time_elapsed = tcod.sys_elapsed_seconds()
   time_elapsed_last_frame = tcod.sys_get_last_frame_length()
-  # Acceleration is applied once every second.
-  time_passed_since_last_reset = int(total_time_elapsed) - int(last_time_accelerated)
-  if (time_passed_since_last_reset > 0):
-    last_time_accelerated = total_time_elapsed
+
 
   for team in teams:
     # Apply collision physics if needed
@@ -156,7 +153,9 @@ while not tcod.console_is_window_closed() and not exit_game:
       steer = action.get('steer')
       exit = action.get('exit')
 
-      team.vehicle.apply_power(g.get_powerpct_from_keyspeed(keypress_timer))
+      powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
+      team.vehicle.apply_power(powerpct)
+      print(powerpct)
 
       if pressed_key_char:
         correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
@@ -181,17 +180,21 @@ while not tcod.console_is_window_closed() and not exit_game:
         exit_game = True
 
     # Apply acceleration, determine speed
-    team.vehicle.speed += time_passed_since_last_reset * team.vehicle.acceleration
+    speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
+    team.vehicle.speed += speed_to_add
+    if team.name == 'The Jack Straw Band':
+      print('adding speed: {}'.format(speed_to_add))
     if team.vehicle.speed > team.vehicle.current_max_speed_from_power:
-      team.vehicle.speed = team.vehicle.current_max_speed_from_power
+      team.vehicle.speed -= 0.1
+    if team.vehicle.speed > team.vehicle.max_speed:
+      team.vehicle.speed = team.vehicle.max_speed
     elif team.vehicle.speed < 0:
       team.vehicle.speed = 0
     team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
-
     # debug
-    print(team.name)
-    print('--------')
-    print('{} : {}'.format(team.vehicle.acceleration, team.vehicle.speed))
+    if team.name == 'The Jack Straw Band':
+      print('current max: {}'.format(team.vehicle.current_max_speed_from_power))
+      print('{} : {}'.format(team.vehicle.acceleration, team.vehicle.speed))
 
 
   # Check for collisions
