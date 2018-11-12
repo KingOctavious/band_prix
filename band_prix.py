@@ -123,8 +123,7 @@ tcod.console_set_default_foreground(con, tcod.white)
 last_time_accelerated = 0
 vehicles_collided = set([])
 active_lyrics_character = 0
-keypress_timer = 0.0
-time_for_this_key = 99999
+keypress_timer = 99999
 ### GAME LOOP #################################################################
 race_start_time = tcod.sys_elapsed_seconds()
 
