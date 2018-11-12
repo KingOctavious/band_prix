@@ -16,7 +16,6 @@ KEYSPEED_ACCEL = collections.OrderedDict({
   0.5: -3
 })
 
-
 def get_accel_from_keyspeed(keyspeed):
   determined_accel = -4
   for time, accel in KEYSPEED_ACCEL.items():
@@ -26,3 +25,23 @@ def get_accel_from_keyspeed(keyspeed):
       break
   
   return determined_accel
+
+# KEYSPEED_POWERPCT
+# The percentage of the vehicle's power that is applied when keyspeed
+# registers at or below the given key. This power applies to both the
+# accleration and the highest possible speed.
+KEYSPEED_POWERPCT = collections.OrderedDict({
+  0.09: 1.00,
+  0.18: 0.66,
+  0.24: 0.33
+})
+
+def get_powerpct_from_keyspeed(keyspeed):
+  determined_powerpct = 0
+  for time, pwr in KEYSPEED_POWERPCT.items():
+    if keyspeed <= time:
+      determined_powerpct = pwr
+      break
+  return determined_powerpct
+
+

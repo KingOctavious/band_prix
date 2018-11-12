@@ -76,8 +76,8 @@ teams = [
 
 # debug
 teams[0].vehicle.max_speed = 1
-teams[2].vehicle.acceleration = 3
-teams[3].vehicle.acceleration = 4
+teams[2].vehicle.max_acceleration = 3
+teams[3].vehicle.max_acceleration = 4
 teams[3].vehicle.max_speed = 4
 
 lyrics = "This is what space smells like"
@@ -137,14 +137,13 @@ while not tcod.console_is_window_closed() and not exit_game:
       steer = action.get('steer')
       exit = action.get('exit')
 
+      team.vehicle.apply_power(g.get_powerpct_from_keyspeed(keypress_timer))
+
       if pressed_key_char:
         correct = check_key_char_input(pressed_key_char, lyrics, active_lyrics_character)
         if correct:
-          if active_lyrics_character > 0:
-            time_for_this_key = keypress_timer
-            all_time_recorded.append(time_for_this_key)
-            #print('avg time: {}'.format(sum(all_time_recorded) / len(all_time_recorded)))
-            print(g.get_accel_from_keyspeed(time_for_this_key))
+          # time_for_this_key = keypress_timer # ? deprecate?  
+          # print(g.get_powerpct_from_keyspeed(time_for_this_key))
           active_lyrics_character += 1
           keypress_timer = 0.0
         else:
@@ -158,11 +157,17 @@ while not tcod.console_is_window_closed() and not exit_game:
 
     # Apply acceleration, determine speed
     team.vehicle.speed += time_passed_since_last_reset * team.vehicle.acceleration
-    if team.vehicle.speed > team.vehicle.max_speed:
-      team.vehicle.speed = team.vehicle.max_speed
+    if team.vehicle.speed > team.vehicle.current_max_speed_from_power:
+      team.vehicle.speed = team.vehicle.current_max_speed_from_power
     elif team.vehicle.speed < 0:
       team.vehicle.speed = 0
     team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
+
+    # debug
+    print(team.name)
+    print('--------')
+    print('{} : {}'.format(team.vehicle.acceleration, team.vehicle.speed))
+
 
   # Check for collisions
   vehicles_collided.clear()
