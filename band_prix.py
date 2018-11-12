@@ -80,7 +80,25 @@ teams[2].vehicle.max_acceleration = 3
 teams[3].vehicle.max_acceleration = 4
 teams[3].vehicle.max_speed = 4
 
-lyrics = "This is what space smells like"
+lyrics = [
+  'My thoughts are frozen',
+  'Like everyone else,'
+  'You will always be remembered',
+  'Even life itself',
+  'Say it to me SANTOS',
+  'And try to make it rhyme',
+  'Say it to me SANTOS',
+  'In normal moving time',
+  'Say it to me SANTOS',
+  'It\'s off to work we go',
+  'Say it to me SANTOS',
+  'HI HO HI HO HI HO',
+  'This is what space smells like',
+  'You will always remember where you were',
+  'This is what space smells like',
+  'You will always remember where you were'
+]
+
 race = Race(teams, circuits.circuit1, lyrics)
 
 # Figure out which team index is the player's team and reset their distance_traveled
@@ -93,7 +111,8 @@ for x in range(0, len(race.teams)):
 
 
 
-
+verse = 0
+song_completed = False
 barricade_locations = [] # holds tuples of x, y barricade locations
 ticks = 0
 key = tcod.Key()
@@ -113,7 +132,7 @@ race_start_time = tcod.sys_elapsed_seconds()
 all_time_recorded = []
 
 while not tcod.console_is_window_closed() and not exit_game:
-  active_key_char = race.lyrics[active_lyrics_character]
+  active_key_char = race.lyrics[verse][active_lyrics_character]
   tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)         
 
   keypress_timer += tcod.sys_get_last_frame_length()
@@ -140,12 +159,18 @@ while not tcod.console_is_window_closed() and not exit_game:
       team.vehicle.apply_power(g.get_powerpct_from_keyspeed(keypress_timer))
 
       if pressed_key_char:
-        correct = check_key_char_input(pressed_key_char, lyrics, active_lyrics_character)
+        correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
         if correct:
           # time_for_this_key = keypress_timer # ? deprecate?  
           # print(g.get_powerpct_from_keyspeed(time_for_this_key))
-          active_lyrics_character += 1
           keypress_timer = 0.0
+          active_lyrics_character += 1
+          if (active_lyrics_character >= len(lyrics[verse])):
+            active_lyrics_character = 0
+            verse += 1
+            if verse >= len(lyrics):
+              song_completed = True
+
         else:
           pass
 
@@ -179,7 +204,7 @@ while not tcod.console_is_window_closed() and not exit_game:
   tcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0,)
 
   tcod.console_clear(panel)
-  print_lyrics(panel, race.lyrics, active_lyrics_character)
+  print_lyrics(panel, race.lyrics[verse], active_lyrics_character)
   tcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
 
   tcod.console_flush()
