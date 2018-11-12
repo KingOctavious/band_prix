@@ -5,6 +5,7 @@ import global_data as g
 from input_handlers import handle_keys
 from physics import *
 from race import Race
+import random
 from render import print_race, print_lyrics
 from team import Team
 from time import sleep
@@ -82,7 +83,7 @@ teams[3].vehicle.max_speed = 4
 
 lyrics = [
   'My thoughts are frozen',
-  'Like everyone else,'
+  'Like everyone else',
   'You will always be remembered',
   'Even life itself',
   'Say it to me SANTOS',
@@ -101,7 +102,7 @@ lyrics = [
 
 race = Race(teams, circuits.circuit1, lyrics)
 
-# Figure out which team index is the player's team and reset their distance_traveled
+# Figure out which team index is the player's team; also reset all vehciles' distance_traveled
 player_team_index = 0
 for x in range(0, len(race.teams)):
   race.teams[x].vehicle.distance_traveled = 0
@@ -154,7 +155,8 @@ while not tcod.console_is_window_closed() and not exit_game:
 
       powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
       team.vehicle.apply_power(powerpct)
-      print(powerpct)
+      #debug 
+      team.vehicle.apply_power(.9)
 
       if pressed_key_char:
         correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
@@ -178,11 +180,15 @@ while not tcod.console_is_window_closed() and not exit_game:
       if exit:
         exit_game = True
 
+    # If team is not player
+    else:
+      team.vehicle.apply_power(random.uniform(0.33, 1.00))
+      #debug
+      #team.vehicle.apply_power(0)
+
     # Apply acceleration, determine speed
     speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
     team.vehicle.speed += speed_to_add
-    if team.name == 'The Jack Straw Band':
-      print('adding speed: {}'.format(speed_to_add))
     if team.vehicle.speed > team.vehicle.current_max_speed_from_power:
       team.vehicle.speed -= 0.1
     if team.vehicle.speed > team.vehicle.max_speed:
@@ -190,10 +196,8 @@ while not tcod.console_is_window_closed() and not exit_game:
     elif team.vehicle.speed < 0:
       team.vehicle.speed = 0
     team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
-    # debug
-    if team.name == 'The Jack Straw Band':
-      print('current max: {}'.format(team.vehicle.current_max_speed_from_power))
-      print('{} : {}'.format(team.vehicle.acceleration, team.vehicle.speed))
+    #print('{} speed: {} | distance traveled: {}'.format(team.name, team.vehicle.speed, team.vehicle.distance_traveled))
+
 
 
   # Check for collisions

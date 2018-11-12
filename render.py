@@ -60,13 +60,15 @@ def print_vehicles(con, race, distance_traveled_by_player):
   for n in range(0, len(race.teams)):
     # All vehicles are displayed vertically relative to player
     new_y = distance_traveled_by_player - race.teams[n].vehicle.distance_traveled
-    race.teams[n].vehicle.y += int(new_y)
+    #print('{} = {} - {}'.format(new_y, distance_traveled_by_player, race.teams[n].vehicle.distance_traveled))
+    race.teams[n].vehicle.y = int(new_y)
     for row in range(0, len(race.teams[n].vehicle.body.rows)):
       for col in range(0, len(race.teams[n].vehicle.body.rows[row])):
         x = race.teams[n].vehicle.x + col
         y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, int(y), race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, int(y), race.teams[n].vehicle.color)
+        #print('y compare: {}:{}'.format(new_y, y))
 
 
 def print_race(con, race, distance_traveled_by_player, barricade_locations_holder):
