@@ -26,6 +26,9 @@ def check_key_char_input(pressed_key_char, lyrics, active_lyrics_character):
     return False
 
 
+def finish_race(team):
+  team.vehicle.acceleration = 0
+
 
 FPS_CAP = 60
 #frame_render_time = 1 / FPS_CAP
@@ -145,41 +148,44 @@ while not tcod.console_is_window_closed() and not exit_game:
     if team.vehicle in vehicles_collided:
       handle_post_collision(team.vehicle)
 
-    # Control player vehicle
-    elif team.isPlayer:
-      action = handle_keys(key)
-      pressed_key_char = action.get('key_char')
-      steer = action.get('steer')
-      exit = action.get('exit')
-      powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
-      team.vehicle.apply_power(powerpct)
-      #debug 
-      team.vehicle.apply_power(.9)
+    elif team.vehicle.distance_traveled >= len(race.circuit.track_shape):
+      finish_race(team)
 
-      if pressed_key_char:
-        correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
-        if correct:
-          keypress_timer = 0.0
-          active_lyrics_character += 1
-          if (active_lyrics_character >= len(lyrics[verse])):
-            active_lyrics_character = 0
-            verse += 1
-            if verse >= len(lyrics):
-              song_completed = True
-
-        else:
-          pass
-
-      if steer:
-        teams[player_team_index].vehicle.x += steer
-      
-      if exit:
-        exit_game = True
-
-    # If team is not player
     else:
-      #team.vehicle.apply_power(random.uniform(0.33, 1.00))
-      team.vehicle.apply_power(0.33)
+      # Control player vehicle
+      if team.isPlayer:
+        action = handle_keys(key)
+        pressed_key_char = action.get('key_char')
+        steer = action.get('steer')
+        exit = action.get('exit')
+        powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
+        team.vehicle.apply_power(powerpct)
+        #debug 
+        team.vehicle.apply_power(.9)
+
+        if pressed_key_char:
+          correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
+          if correct:
+            keypress_timer = 0.0
+            active_lyrics_character += 1
+            if (active_lyrics_character >= len(lyrics[verse])):
+              active_lyrics_character = 0
+              verse += 1
+              if verse >= len(lyrics):
+                song_completed = True
+
+          else:
+            pass
+
+        if steer:
+          teams[player_team_index].vehicle.x += steer
+        
+        if exit:
+          exit_game = True
+
+      # If team is not player
+      else:
+        team.vehicle.apply_power(random.uniform(0.33, 1.00))
 
     # Apply acceleration, determine speed
     speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
@@ -191,7 +197,6 @@ while not tcod.console_is_window_closed() and not exit_game:
     elif team.vehicle.speed < 0:
       team.vehicle.speed = 0
     team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
-
 
 
   # Check for collisions
