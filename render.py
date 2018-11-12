@@ -31,6 +31,21 @@ def print_lyrics(panel, lyrics, active_character):
   
   tcod.console_print_rect_ex(panel, x, y, w, h, tcod.BKGND_SET, tcod.CENTER, formatted_lyrics)
 
+# print_panel_side
+# 
+# panel: libtcod console
+# race_stats: list of strings
+def print_panel_side(panel, race_stats):
+  primary_color = tcod.white
+  
+  tcod.console_set_default_foreground(panel, primary_color)
+  tcod.console_set_default_background(panel, tcod.black)
+
+  line_no = 0
+  for stat_line in race_stats:
+    tcod.console_print(panel, 0, line_no, stat_line)
+    line_no += 1
+
 
 def print_track(con, race, distance_traveled_by_player, barricade_locations_holder):
   barricade_locations_holder.clear()

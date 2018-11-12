@@ -6,7 +6,7 @@ from input_handlers import handle_keys
 from physics import *
 from race import Race
 import random
-from render import print_race, print_lyrics
+from render import *
 from team import Team
 from time import sleep
 from track_direction import Track_Direction as td
@@ -14,6 +14,23 @@ from vehicle import Vehicle
 from vehicle_body import Vehicle_Body
 import vehicle_bodies
 import visuals
+
+
+def get_distance_traveled(team):
+  return team.vehicle.distance_traveled
+
+def get_race_stats(race):
+  sorted_teams = sorted(race.teams, key=get_distance_traveled, reverse=True)
+
+  place = 1
+  stat_list = []
+  for team in sorted_teams:
+    stat_text = str(place) + '. ' + team.name + '   ' + str(int(team.vehicle.distance_traveled))
+    stat_list.append(stat_text)
+    place += 1
+
+  return stat_list
+
 
 
 def check_key_char_input(pressed_key_char, lyrics, active_lyrics_character):
@@ -52,19 +69,28 @@ TURN_BASED = False
 
 
 
-
-screen_width = 80
-screen_height = 50
+main_viewport_height = 50
+main_viewport_width = 80
 panel_height = 7
-panel_y = screen_height - panel_height
+panel_side_width = 30
+
+screen_width = main_viewport_width + panel_side_width
+screen_height = main_viewport_height + panel_height
 
 tcod.console_set_custom_font(font_path, font_flags)
 tcod.console_init_root(screen_width, screen_height, GAME_TITLE, fullscreen)
 
-con = tcod.console_new(screen_width, screen_height)
+con = tcod.console_new(main_viewport_width, main_viewport_height)
 
-panel = tcod.console_new(screen_width, panel_height)
+
+panel_y = screen_height - panel_height
+panel = tcod.console_new(main_viewport_width, panel_height)
 tcod.console_set_alignment(panel, tcod.LEFT)
+
+panel_side_x = screen_width - panel_side_width
+panel_side = tcod.console_new(panel_side_width, screen_height)
+
+
 
 tcod.sys_set_fps(FPS_CAP)
 
@@ -210,7 +236,11 @@ while not tcod.console_is_window_closed() and not exit_game:
 
   tcod.console_clear(panel)
   print_lyrics(panel, race.lyrics[verse], active_lyrics_character)
-  tcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
+  tcod.console_blit(panel, 0, 0, main_viewport_width, panel_height, 0, 0, panel_y)
+
+  tcod.console_clear(panel_side)
+  print_panel_side(panel_side, get_race_stats(race))
+  tcod.console_blit(panel_side, 0, 0, panel_side_width, screen_height, 0, panel_side_x, 0)
 
   tcod.console_flush()
 
