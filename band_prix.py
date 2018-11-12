@@ -41,7 +41,7 @@ GAME_TITLE = 'Band Prix'
 
 #layout = tcod.FONT_LAYOUT_TCOD
 
-font_path  = 'terminal16x16_gs_ro.png'
+font_path = 'terminal16x16_gs_ro.png'
 layout = tcod.FONT_LAYOUT_ASCII_INROW
 
 font_flags = tcod.FONT_TYPE_GREYSCALE | layout
@@ -156,13 +156,11 @@ while not tcod.console_is_window_closed() and not exit_game:
       powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
       team.vehicle.apply_power(powerpct)
       #debug 
-      team.vehicle.apply_power(.9)
+      #team.vehicle.apply_power(.9)
 
       if pressed_key_char:
         correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
         if correct:
-          # time_for_this_key = keypress_timer # ? deprecate?  
-          # print(g.get_powerpct_from_keyspeed(time_for_this_key))
           keypress_timer = 0.0
           active_lyrics_character += 1
           if (active_lyrics_character >= len(lyrics[verse])):
@@ -183,8 +181,6 @@ while not tcod.console_is_window_closed() and not exit_game:
     # If team is not player
     else:
       team.vehicle.apply_power(random.uniform(0.33, 1.00))
-      #debug
-      #team.vehicle.apply_power(0)
 
     # Apply acceleration, determine speed
     speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
@@ -196,7 +192,6 @@ while not tcod.console_is_window_closed() and not exit_game:
     elif team.vehicle.speed < 0:
       team.vehicle.speed = 0
     team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
-    #print('{} speed: {} | distance traveled: {}'.format(team.name, team.vehicle.speed, team.vehicle.distance_traveled))
 
 
 

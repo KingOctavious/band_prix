@@ -1,5 +1,7 @@
 import collections
 
+TRACK_ROWS_TO_DISPLAY = 50
+
 SIDE_OPPOSITES = {
   'front': 'rear',
   'right': 'left',

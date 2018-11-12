@@ -1,4 +1,6 @@
 import libtcodpy as tcod
+
+import global_data as g
 from race import Race
 import visuals
 
@@ -33,18 +35,17 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
   barricade_locations_holder.clear()
   lane_count = len(race.teams)
   lane_size = race.lane_size
-  NUM_ROWS_TO_DISPLAY = 30
   track_width = ((lane_size + 1) * lane_count) + 1
 
-  for track_row in range(int(distance_traveled_by_player), int(distance_traveled_by_player) + NUM_ROWS_TO_DISPLAY):
+  for track_row in range(int(distance_traveled_by_player), int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY):
     offset = race.circuit.track_shape[track_row][1]
     left_edge = 0 + offset
 
     for col in range(left_edge, track_width + left_edge + 1):
       # Print barricades
       if col == left_edge or col == left_edge + track_width - 1:
-        barricade_locations_holder.append((col, int(distance_traveled_by_player) + NUM_ROWS_TO_DISPLAY - track_row))
-        tcod.console_put_char(con, col, int(distance_traveled_by_player) + NUM_ROWS_TO_DISPLAY - track_row, visuals.BARRICADE, tcod.BKGND_NONE)
+        barricade_locations_holder.append((col, int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY - track_row))
+        tcod.console_put_char(con, col, int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY - track_row, visuals.BARRICADE, tcod.BKGND_NONE)
       
       # Print lane stripes
       else:
@@ -52,7 +53,7 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
         col_within_lane = col - (lane * (lane_size + 1))
 
         if col_within_lane == 0:
-          tcod.console_put_char(con, col + offset, int(distance_traveled_by_player) + NUM_ROWS_TO_DISPLAY - track_row, str(race.circuit.track_shape[track_row][0]), tcod.BKGND_NONE)
+          tcod.console_put_char(con, col + offset, int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY - track_row, str(race.circuit.track_shape[track_row][0]), tcod.BKGND_NONE)
 
 
 def print_vehicles(con, race, distance_traveled_by_player):
@@ -60,15 +61,13 @@ def print_vehicles(con, race, distance_traveled_by_player):
   for n in range(0, len(race.teams)):
     # All vehicles are displayed vertically relative to player
     new_y = distance_traveled_by_player - race.teams[n].vehicle.distance_traveled
-    #print('{} = {} - {}'.format(new_y, distance_traveled_by_player, race.teams[n].vehicle.distance_traveled))
     race.teams[n].vehicle.y = int(new_y)
     for row in range(0, len(race.teams[n].vehicle.body.rows)):
       for col in range(0, len(race.teams[n].vehicle.body.rows[row])):
         x = race.teams[n].vehicle.x + col
-        y = race.teams[n].vehicle.y + row
+        y = race.teams[n].vehicle.y + row + round(g.TRACK_ROWS_TO_DISPLAY / 2)
         tcod.console_put_char(con, x, int(y), race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, int(y), race.teams[n].vehicle.color)
-        #print('y compare: {}:{}'.format(new_y, y))
 
 
 def print_race(con, race, distance_traveled_by_player, barricade_locations_holder):
