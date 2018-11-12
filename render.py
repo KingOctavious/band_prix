@@ -34,16 +34,46 @@ def print_lyrics(panel, lyrics, active_character):
 # print_panel_side
 # 
 # panel: libtcod console
-# race_stats: list of strings
-def print_panel_side(panel, race_stats):
+# race_stats: list of Interval Stat objects
+def print_panel_side(panel, race_stats, panel_width):
   primary_color = tcod.white
   
   tcod.console_set_default_foreground(panel, primary_color)
-  tcod.console_set_default_background(panel, tcod.black)
+
+##########################################
+  MAX_INTERVAL_STRING_SIZE = 6 # (hundreds digit -> decimal -> hundredths digit)
+
+  stat_list = []
+  for team_stat in race_stats:
+    place_str = str(team_stat.place)
+    interval_string_size = len(team_stat.interval)
+    pre_interval_spaces = ' '
+    pre_interval_spaces += ' ' * (MAX_INTERVAL_STRING_SIZE - interval_string_size)
+    team_name = team_stat.team.name
+    full_string_size = len(place_str) + 1 + len(team_name) + len(pre_interval_spaces) + interval_string_size
+    # Add spaces before interval to make it right-align
+    if full_string_size <= panel_width:
+      additional_spaces = panel_width - full_string_size
+      pre_interval_spaces += ' ' * additional_spaces
+    # Truncate team name to make it fit
+    else:
+      exceeded = full_string_size - panel_width
+      team_name = team_name[:-exceeded]
+
+    r = team_stat.team.vehicle.color.r + 256
+    g = team_stat.team.vehicle.color.g + 256
+    b = team_stat.team.vehicle.color.b + 256
+
+    if team_stat.team.isPlayer:
+      team_name = '%c%c%c%c{}%c'.format(team_name)%(tcod.COLCTRL_FORE_RGB, r, g, b, tcod.COLCTRL_STOP)
+
+    
+    stat_text = place_str + ' ' + team_name + pre_interval_spaces + team_stat.interval
+    stat_list.append(stat_text)
 
   line_no = 0
-  for stat_line in race_stats:
-    tcod.console_print(panel, 0, line_no, stat_line)
+  for stat_line in stat_list:
+    tcod.console_print_ex(panel, 0, line_no, tcod.BKGND_SET, tcod.LEFT, stat_line)
     line_no += 1
 
 

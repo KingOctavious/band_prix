@@ -3,6 +3,7 @@ import libtcodpy as tcod
 import circuits
 import global_data as g
 from input_handlers import handle_keys
+from interval_stat import Interval_Stat
 from physics import *
 from race import Race
 import random
@@ -19,39 +20,23 @@ import visuals
 def get_distance_traveled(team):
   return team.vehicle.distance_traveled
 
-def get_race_stats(race, display_width):
+# build_race_stats
+#
+# returns list of Interval_Stat objects in proper order
+def build_race_stats(race):
   sorted_teams = sorted(race.teams, key=get_distance_traveled, reverse=True)
-
-  MAX_INTERVAL_STRING_SIZE = 6 # (hundreds digit -> decimal -> hundredths digit)
+  ordered_race_stats = []
 
   place = 1
-  stat_list = []
   for team in sorted_teams:
-    place_str = str(place)
     dist_to_first = sorted_teams[0].vehicle.distance_traveled - team.vehicle.distance_traveled
     interval = '----'
     if (team.vehicle.speed >= 1):
       interval = str(format(round((dist_to_first / team.vehicle.speed), 2), '.2f'))
-
-    interval_string_size = len(interval)
-    pre_interval_spaces = ' '
-    pre_interval_spaces += ' ' * (MAX_INTERVAL_STRING_SIZE - interval_string_size)
-    team_name = team.name
-    full_string_size = len(place_str) + 1 + len(team_name) + len(pre_interval_spaces) + interval_string_size
-    # Add spaces before interval to make it right-align
-    if full_string_size <= display_width:
-      additional_spaces = display_width - full_string_size
-      pre_interval_spaces += ' ' * additional_spaces
-    # Truncate team name to make it fit
-    else:
-      exceeded = full_string_size - display_width
-      team_name = team_name[:-exceeded]
-
-    stat_text = place_str + ' ' + team_name + pre_interval_spaces + interval
-    stat_list.append(stat_text)
+    ordered_race_stats.append(Interval_Stat(place, team, interval))
     place += 1
 
-  return stat_list
+  return ordered_race_stats
 
 
 
@@ -125,6 +110,7 @@ teams = [
   Team('The Billiards', Vehicle(vehicle_bodies.v_bod_1, tcod.orange)),
   Team('Strange Dan Gustafvist', Vehicle(vehicle_bodies.v_bod_1, tcod.light_cyan)),
 ]
+
 
 # debug
 teams[0].vehicle.max_speed = 1
@@ -261,7 +247,7 @@ while not tcod.console_is_window_closed() and not exit_game:
   tcod.console_blit(panel, 0, 0, main_viewport_width, panel_height, 0, 0, panel_y)
 
   tcod.console_clear(panel_side)
-  print_panel_side(panel_side, get_race_stats(race, panel_side_width))
+  print_panel_side(panel_side, build_race_stats(race), panel_side_width)
   tcod.console_blit(panel_side, 0, 0, panel_side_width, screen_height, 0, panel_side_x, 0)
 
   tcod.console_flush()
