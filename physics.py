@@ -83,7 +83,7 @@ def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holde
     base_y = base_vehicle.y
     base_w = base_vehicle.body.width
     base_h = base_vehicle.body.length
-    base_veh_collision_pts = [] # Holds x, y tuples
+    base_veh_collision_pts = [] # Holds (x, y) tuples
 
     if index < team_count - 1:
       # Check for collisions with barricades

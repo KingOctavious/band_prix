@@ -89,7 +89,7 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
   track_width = ((lane_size + 1) * lane_count) + 1
 
   for track_row in range(int(distance_traveled_by_player) - g.TRACK_ROWS_DISPLAYED_DOWN_FROM_PLAYER_TOP, int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY):
-    #print(track_row)
+    y = int(distance_traveled_by_player) + g.TRACK_ROWS_DISPLAYED_ABOVE_PLAYER - track_row
     track_length = len(race.circuit.track_shape)
     
     # Stuff before the starting line
@@ -105,11 +105,18 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
     left_edge = 0 + offset
 
 
-    for col in range(left_edge, track_width + left_edge + 1):
+    for col in range(left_edge, track_width + left_edge):        
+      # Print starting line  
+      if track_row == 1:
+        tcod.console_put_char(con, col, y, visuals.START_LINE, tcod.BKGND_NONE)
+      # Print finish line
+      elif track_row == track_length:
+        tcod.console_put_char(con, col, y, visuals.FINISH_LINE, tcod.BKGND_NONE)
+
       # Print barricades
       if col == left_edge or col == left_edge + track_width - 1:
-        barricade_locations_holder.append((col, int(distance_traveled_by_player) + g.TRACK_ROWS_DISPLAYED_ABOVE_PLAYER - track_row))
-        tcod.console_put_char(con, col, int(distance_traveled_by_player) + g.TRACK_ROWS_DISPLAYED_ABOVE_PLAYER - track_row, visuals.BARRICADE, tcod.BKGND_NONE)
+        barricade_locations_holder.append((col, y))
+        tcod.console_put_char(con, col, y, visuals.BARRICADE, tcod.BKGND_NONE)
       
       # Print lane stripes
       else:
@@ -119,39 +126,28 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
         if col_within_lane == 0:
           # Before start line
           if track_row < 0:
-            #print('PRE LINE')
             lane_stripe = str(race.circuit.track_shape[0][0])
           # Actual track
           elif track_row < track_length:
             lane_stripe = str(race.circuit.track_shape[track_row][0])
           # After finish line
           else:
-            lane_stripe = str(race.circuit.STRIPE_CHARS[td.STRAIGHT])
+            lane_stripe = str(visuals.STRIPE_CHARS[td.STRAIGHT])
 
-          tcod.console_put_char(con, col + offset, int(distance_traveled_by_player) + g.TRACK_ROWS_DISPLAYED_ABOVE_PLAYER - track_row, lane_stripe, tcod.BKGND_NONE)
-          
-      # Print starting line  
-      if track_row == 1:
-        tcod.console_put_char(con, col + offset, int(distance_traveled_by_player) + g.TRACK_ROWS_DISPLAYED_ABOVE_PLAYER - track_row, race.circuit.START_LINE, tcod.BKGND_NONE)
-      # Print finish line
-      elif track_row == track_length:
-        tcod.console_put_char(con, col + offset, int(distance_traveled_by_player) + g.TRACK_ROWS_DISPLAYED_ABOVE_PLAYER - track_row, race.circuit.FINISH_LINE, tcod.BKGND_NONE)
+          tcod.console_put_char(con, col + offset, y, lane_stripe, tcod.BKGND_NONE)
+
 
 
 def print_vehicles(con, race, player_y, distance_traveled_by_player):
   # Print all vehicles
   for n in range(0, len(race.teams)):
     # All vehicles are displayed vertically relative to player
-    if race.teams[n].isPlayer:
-      print('pre {}'.format(race.teams[n].vehicle.y))
     new_y = player_y + (int(distance_traveled_by_player) - int(race.teams[n].vehicle.distance_traveled))
     race.teams[n].vehicle.y = new_y
-    if race.teams[n].isPlayer:
-      print('post {}'.format(race.teams[n].vehicle.y))
     for row in range(0, len(race.teams[n].vehicle.body.rows)):
       for col in range(0, len(race.teams[n].vehicle.body.rows[row])):
         x = race.teams[n].vehicle.x + col
-        y = race.teams[n].vehicle.y + row# + g.TRACK_ROWS_DISPLAYED_ABOVE_PLAYER
+        y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, int(y), race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, int(y), race.teams[n].vehicle.color)
 

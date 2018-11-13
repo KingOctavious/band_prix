@@ -1,15 +1,8 @@
 from track_direction import Track_Direction as td
 
+import visuals
+
 class Circuit:
-  STRIPE_CHARS = {
-    td.STRAIGHT: '|',
-    td.LEFT: '\\',
-    td.RIGHT: '/'
-  }
-
-  FINISH_LINE = '#'
-  START_LINE = '-'
-
   def __init__(self, name, track_layout):
     self.name = name
 
@@ -23,4 +16,4 @@ class Circuit:
       elif track_layout[distance] == td.RIGHT:
         offset += 1
 
-      self.track_shape.append((self.STRIPE_CHARS[track_layout[distance]], offset))
+      self.track_shape.append((visuals.STRIPE_CHARS[track_layout[distance]], offset))

@@ -103,8 +103,6 @@ def finish_race(race, team, time):
 
 FPS_CAP = 60
 #frame_render_time = 1 / FPS_CAP
-#print("RENDER TIME:")
-#print(frame_render_time)
 fullscreen = False
 GAME_TITLE = 'Band Prix'
 #font_path = 'arial10x10.png'
