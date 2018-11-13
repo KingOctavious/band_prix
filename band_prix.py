@@ -43,19 +43,16 @@ def build_race_stats(race):
     place = counter
     if team not in already_finished:
       dist_to_first = sorted_teams[0].vehicle.distance_traveled - team.vehicle.distance_traveled
-      print('c{}: {}'.format(counter, dist_to_first))
 
       # Check for tie with most recently checked vehicle
       if len(ordered_race_stats) > 0:
         if team.vehicle.distance_traveled == ordered_race_stats[len(ordered_race_stats) - 1].team.vehicle.distance_traveled:
           place = ordered_race_stats[len(ordered_race_stats) - 1].place
-          print('TIE: distance traveled({}), place({})'.format(team.vehicle.distance_traveled, place))
 
       interval = '----'
       if (team.vehicle.speed >= 1):
         interval = '+' + str(format(round((dist_to_first / team.vehicle.speed), 2), '.2f'))
       ordered_race_stats.append(Interval_Stat(place, team, interval))
-      print(place)
     counter += 1
 
   return ordered_race_stats
@@ -164,10 +161,10 @@ teams = [
 
 # debug
 teams[0].vehicle.max_speed = 1
-teams[2].vehicle.max_speed = 4
+teams[2].vehicle.max_speed = 30
 teams[2].vehicle.max_acceleration = 4
 teams[3].vehicle.max_acceleration = 4
-teams[3].vehicle.max_speed = 4
+teams[3].vehicle.max_speed = 30
 
 lyrics = [
   'My thoughts are frozen',
@@ -245,9 +242,10 @@ while not tcod.console_is_window_closed() and not exit_game:
         steer = action.get('steer')
         exit = action.get('exit')
         powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
-        team.vehicle.apply_power(powerpct)
-        #debug 
+        #team.vehicle.apply_power(powerpct)
+        # debug
         team.vehicle.apply_power(.9)
+
 
         if pressed_key_char:
           correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
@@ -272,8 +270,8 @@ while not tcod.console_is_window_closed() and not exit_game:
       # If team is not player
       else:
         # debug
-        #team.vehicle.apply_power(random.uniform(0.33, 1.00))
-        team.vehicle.apply_power(1)
+        team.vehicle.apply_power(random.uniform(0.33, 1.00))
+        #team.vehicle.apply_power(1)
 
     # Apply acceleration, determine speed
     speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
@@ -293,7 +291,7 @@ while not tcod.console_is_window_closed() and not exit_game:
 
   # Render
   tcod.console_clear(con)
-  print_race(con, race, int(teams[player_team_index].vehicle.distance_traveled), barricade_locations)
+  print_race(con, race, int(teams[player_team_index].vehicle.y), int(teams[player_team_index].vehicle.distance_traveled), barricade_locations)
   tcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0,)
 
   tcod.console_clear(panel)

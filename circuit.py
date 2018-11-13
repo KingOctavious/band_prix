@@ -7,6 +7,9 @@ class Circuit:
     td.RIGHT: '/'
   }
 
+  FINISH_LINE = '#'
+  START_LINE = '-'
+
   def __init__(self, name, track_layout):
     self.name = name
 

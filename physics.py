@@ -90,6 +90,7 @@ def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holde
       for y in range(base_y, base_y + base_h - 1):
         for x in range(base_x, base_x + base_w - 1):
           if (x, y) in barricade_locations_holder:
+            # COLLISION DETECTED!
             base_veh_collision_pts.append((x - base_x, y - base_y))
             colliding_vehicles_holder.add(base_vehicle)
             apply_collision(base_vehicle.body, base_veh_collision_pts)

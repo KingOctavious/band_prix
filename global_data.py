@@ -1,6 +1,8 @@
 import collections
 
 TRACK_ROWS_TO_DISPLAY = 50
+TRACK_ROWS_DISPLAYED_ABOVE_PLAYER = round(TRACK_ROWS_TO_DISPLAY / 2)
+TRACK_ROWS_DISPLAYED_DOWN_FROM_PLAYER_TOP = TRACK_ROWS_TO_DISPLAY - TRACK_ROWS_DISPLAYED_ABOVE_PLAYER
 
 SIDE_OPPOSITES = {
   'front': 'rear',
@@ -8,24 +10,6 @@ SIDE_OPPOSITES = {
   'rear': 'front',
   'left': 'right'
 }
-
-KEYSPEED_ACCEL = collections.OrderedDict({
-  0.09: 3,
-  0.18: 2,
-  0.22: 0,
-  0.25: -1,
-  0.35: -2,
-  0.5: -3
-})
-
-def get_accel_from_keyspeed(keyspeed):
-  determined_accel = -4
-  for time, accel in KEYSPEED_ACCEL.items():
-    print(time)
-    if keyspeed <= time:
-      determined_accel = accel
-      break
-  return determined_accel
 
 # KEYSPEED_POWERPCT
 # The percentage of the vehicle's power that is applied when keyspeed

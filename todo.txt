@@ -1,4 +1,3 @@
-Need to lock place after finish
 Vehicles currently don't register as finished until finish line passes off screen
 make lane stripes print onlyi 1/3 times so movement can be seen
 collisions should impact speed
