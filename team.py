@@ -3,3 +3,4 @@ class Team:
     self.name = name
     self.vehicle = vehicle
     self.isPlayer = isPlayer
+    self.finished_current_race = False

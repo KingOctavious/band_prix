@@ -40,8 +40,7 @@ def print_panel_side(panel, race_stats, panel_width):
   
   tcod.console_set_default_foreground(panel, primary_color)
 
-##########################################
-  MAX_INTERVAL_STRING_SIZE = 6 # (hundreds digit -> decimal -> hundredths digit)
+  MAX_INTERVAL_STRING_SIZE = 7 # ("+" -> hundreds digit -> decimal -> hundredths digit)
 
   stat_list = []
   for team_stat in race_stats:
@@ -60,12 +59,18 @@ def print_panel_side(panel, race_stats, panel_width):
       exceeded = full_string_size - panel_width
       team_name = team_name[:-exceeded]
 
-    r = team_stat.team.vehicle.color.r + 256
-    g = team_stat.team.vehicle.color.g + 256
-    b = team_stat.team.vehicle.color.b + 256
-
+    r = 255
+    g = 255
+    b = 255
     if team_stat.team.isPlayer:
+      r = team_stat.team.vehicle.color.r + 256
+      g = team_stat.team.vehicle.color.g + 256
+      b = team_stat.team.vehicle.color.b + 256
+
+    if not team_stat.team.finished_current_race:
       team_name = '%c%c%c%c{}%c'.format(team_name)%(tcod.COLCTRL_FORE_RGB, r, g, b, tcod.COLCTRL_STOP)
+    else:
+      team_name = '%c%c%c%c%c%c%c%c{}%c'.format(team_name)%(tcod.COLCTRL_BACK_RGB, r, g, b, tcod.COLCTRL_FORE_RGB, 0+256, 0+256, 0+256, tcod.COLCTRL_STOP)
 
     
     stat_text = place_str + ' ' + team_name + pre_interval_spaces + team_stat.interval

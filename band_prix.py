@@ -23,17 +23,29 @@ def get_distance_traveled(team):
 # build_race_stats
 #
 # returns list of Interval_Stat objects in proper order
-def build_race_stats(race):
-  sorted_teams = sorted(race.teams, key=get_distance_traveled, reverse=True)
+def build_race_stats(race):  
   ordered_race_stats = []
 
-  place = 1
+  # Teams that have finished are locked in place based on finishing info
+  already_finished = [] # This will make things simpler later in the function
+  for place_team in race.finished_teams:
+    place = place_team[0]
+    team = place_team[1]
+    time = str(format(round((race.finish_times[team]), 2), '.2f'))
+    ordered_race_stats.append(Interval_Stat(place_team[0], place_team[1], time))
+    already_finished.append(team)
+
+  sorted_teams = sorted(race.teams, key=get_distance_traveled, reverse=True)
+
+  # Now list non-finished teams
+  place = len(ordered_race_stats) + 1
   for team in sorted_teams:
-    dist_to_first = sorted_teams[0].vehicle.distance_traveled - team.vehicle.distance_traveled
-    interval = '----'
-    if (team.vehicle.speed >= 1):
-      interval = str(format(round((dist_to_first / team.vehicle.speed), 2), '.2f'))
-    ordered_race_stats.append(Interval_Stat(place, team, interval))
+    if team not in already_finished:
+      dist_to_first = sorted_teams[0].vehicle.distance_traveled - team.vehicle.distance_traveled
+      interval = '----'
+      if (team.vehicle.speed >= 1):
+        interval = '+' + str(format(round((dist_to_first / team.vehicle.speed), 2), '.2f'))
+      ordered_race_stats.append(Interval_Stat(place, team, interval))
     place += 1
 
   return ordered_race_stats
@@ -50,8 +62,36 @@ def check_key_char_input(pressed_key_char, lyrics, active_lyrics_character):
     return False
 
 
-def finish_race(team):
+def finish_race(race, team, time):
+  # Update race finishing places and times ####################################
+
+  finished_teams_count = len(race.finished_teams)
+
+  # First check and see if this team ties with another
+  tie_occurred = False
+  if finished_teams_count > 0:
+    latest_place = race.finished_teams[finished_teams_count - 1][0]
+    latest_team = race.finished_teams[finished_teams_count - 1][1]
+    latest_time = race.finish_times[latest_team]
+
+    # If this team ties with the previously finished team
+    if latest_time == time:
+      tie_occurred = True
+      # Update pertinent info
+      race.finished_teams.append((latest_place, team))
+
+  if not tie_occurred:
+    finishing_place = finished_teams_count + 1
+    race.finished_teams.append((finishing_place, team))
+
+  # This happens the same way regardless of a tie
+  race.finish_times[team] = time
+
+
+  # Misc other things to take care of #########################################
+  team.finished_current_race = True
   team.vehicle.acceleration = 0
+
 
 
 FPS_CAP = 60
@@ -144,6 +184,7 @@ player_team_index = 0
 for x in range(0, len(race.teams)):
   race.teams[x].vehicle.distance_traveled = 0
   race.teams[x].vehicle.speed = 0
+  race.teams[x].finished_current_race = False
   if (race.teams[x].isPlayer):
     player_team_index = x
 
@@ -182,10 +223,10 @@ while not tcod.console_is_window_closed() and not exit_game:
     if team.vehicle in vehicles_collided:
       handle_post_collision(team.vehicle)
 
-    elif team.vehicle.distance_traveled >= len(race.circuit.track_shape):
-      finish_race(team)
-
     else:
+      if team.vehicle.distance_traveled >= len(race.circuit.track_shape) and not team.finished_current_race:
+        finish_race(race, team, total_time_elapsed)
+
       # Control player vehicle
       if team.isPlayer:
         action = handle_keys(key)
