@@ -306,5 +306,5 @@ while not tcod.console_is_window_closed() and not exit_game:
 
 
   #sleep(0.1)
-
+ 
 quit()
