@@ -4,10 +4,12 @@ import circuits
 import global_data as g
 from input_handlers import handle_keys
 from interval_stat import Interval_Stat
+import lexicons as lex
 from physics import *
 from race import Race
 import random
 from render import *
+from song_generator import build_song
 from team import Team
 from time import sleep
 from track_direction import Track_Direction as td
@@ -304,6 +306,5 @@ while not tcod.console_is_window_closed() and not exit_game:
 
 
   #sleep(0.1)
-
 
 quit()
