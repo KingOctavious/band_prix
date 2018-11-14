@@ -3,6 +3,7 @@ make lane stripes print onlyi 1/3 times so movement can be seen
 collisions should impact speed
 DEPRECATE OLD ACCLEREATION GLOBALS?
 vehicle turning AI
+add second line of refrain (with prepositional phrase + noun group)
 finish line
 limit update of race stats
 fix fps

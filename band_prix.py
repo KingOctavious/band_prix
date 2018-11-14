@@ -1,6 +1,7 @@
 import libtcodpy as tcod
 
 import circuits
+from context import Context
 import global_data as g
 from input_handlers import handle_keys
 from interval_stat import Interval_Stat
@@ -131,11 +132,11 @@ panel_side_width = 30
 screen_width = main_viewport_width + panel_side_width
 screen_height = main_viewport_height + panel_height
 
+# Viewports ###################################################################
 tcod.console_set_custom_font(font_path, font_flags)
 tcod.console_init_root(screen_width, screen_height, GAME_TITLE, fullscreen)
 
 con = tcod.console_new(main_viewport_width, main_viewport_height)
-
 
 panel_y = screen_height - panel_height
 panel = tcod.console_new(main_viewport_width, panel_height)
@@ -144,10 +145,13 @@ tcod.console_set_alignment(panel, tcod.LEFT)
 panel_side_x = screen_width - panel_side_width
 panel_side = tcod.console_new(panel_side_width, screen_height)
 
+full_panel = tcod.console_new(screen_width, screen_height)
+tcod.console_set_alignment(full_panel, tcod.LEFT)
+# End viewports ###############################################################
+
 
 
 tcod.sys_set_fps(FPS_CAP)
-
 
 
 teams = [
@@ -217,92 +221,123 @@ race_start_time = tcod.sys_elapsed_seconds()
 # debug
 all_time_recorded = []
 
+#context = Context.RACE
+context = Context.TEAM_CREATION
 while not tcod.console_is_window_closed() and not exit_game:
-  active_key_char = race.lyrics[verse][active_lyrics_character]
-  tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)         
-
-  keypress_timer += tcod.sys_get_last_frame_length()
-  total_time_elapsed = tcod.sys_elapsed_seconds()
-  time_elapsed_last_frame = tcod.sys_get_last_frame_length()
+  if context == Context.RACE:
+    tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
+    active_key_char = race.lyrics[verse][active_lyrics_character]
 
 
-  for team in teams:
-    # Apply collision physics if needed
-    if team.vehicle in vehicles_collided:
-      handle_post_collision(team.vehicle)
-
-    else:
-      if team.vehicle.distance_traveled >= len(race.circuit.track_shape) and not team.finished_current_race:
-        finish_race(race, team, total_time_elapsed)
-
-      # Control player vehicle
-      if team.isPlayer:
-        action = handle_keys(key)
-        pressed_key_char = action.get('key_char')
-        steer = action.get('steer')
-        exit = action.get('exit')
-        powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
-        #team.vehicle.apply_power(powerpct)
-        # debug
-        team.vehicle.apply_power(.9)
+    keypress_timer += tcod.sys_get_last_frame_length()
+    total_time_elapsed = tcod.sys_elapsed_seconds()
+    time_elapsed_last_frame = tcod.sys_get_last_frame_length()
 
 
-        if pressed_key_char:
-          correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
-          if correct:
-            keypress_timer = 0.0
-            active_lyrics_character += 1
-            if (active_lyrics_character >= len(lyrics[verse])):
-              active_lyrics_character = 0
-              verse += 1
-              if verse >= len(lyrics):
-                song_completed = True
+    for team in teams:
+      # Apply collision physics if needed
+      if team.vehicle in vehicles_collided:
+        handle_post_collision(team.vehicle)
 
-          else:
-            pass
-
-        if steer:
-          teams[player_team_index].vehicle.x += steer
-        
-        if exit:
-          exit_game = True
-
-      # If team is not player
       else:
-        # debug
-        team.vehicle.apply_power(random.uniform(0.33, 1.00))
-        #team.vehicle.apply_power(1)
+        if team.vehicle.distance_traveled >= len(race.circuit.track_shape) and not team.finished_current_race:
+          finish_race(race, team, total_time_elapsed)
 
-    # Apply acceleration, determine speed
-    speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
-    team.vehicle.speed += speed_to_add
-    if team.vehicle.speed > team.vehicle.current_max_speed_from_power:
-      team.vehicle.speed -= 0.1
-    if team.vehicle.speed > team.vehicle.max_speed:
-      team.vehicle.speed = team.vehicle.max_speed
-    elif team.vehicle.speed < 0:
-      team.vehicle.speed = 0
-    team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
+        # Control player vehicle
+        if team.isPlayer:
+          action = handle_keys(key)
+          pressed_key_char = action.get('key_char')
+          steer = action.get('steer')
+          exit = action.get('exit')
+          powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
+          team.vehicle.apply_power(powerpct)
+          # debug
+          #team.vehicle.apply_power(.9)
 
 
-  # Check for collisions
-  vehicles_collided.clear()
-  handle_collisions(race, vehicles_collided, barricade_locations)
+          if pressed_key_char:
+            correct = check_key_char_input(pressed_key_char, lyrics[verse], active_lyrics_character)
+            if correct:
+              keypress_timer = 0.0
+              active_lyrics_character += 1
+              if (active_lyrics_character >= len(lyrics[verse])):
+                active_lyrics_character = 0
+                verse += 1
+                if verse >= len(lyrics):
+                  song_completed = True
 
-  # Render
-  tcod.console_clear(con)
-  print_race(con, race, int(teams[player_team_index].vehicle.y), int(teams[player_team_index].vehicle.distance_traveled), barricade_locations)
-  tcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0,)
+            else:
+              pass
 
-  tcod.console_clear(panel)
-  print_lyrics(panel, race.lyrics[verse], active_lyrics_character)
-  tcod.console_blit(panel, 0, 0, main_viewport_width, panel_height, 0, 0, panel_y)
+          if steer:
+            teams[player_team_index].vehicle.x += steer
+          
+          if exit:
+            exit_game = True
 
-  tcod.console_clear(panel_side)
-  print_panel_side(panel_side, build_race_stats(race), panel_side_width)
-  tcod.console_blit(panel_side, 0, 0, panel_side_width, screen_height, 0, panel_side_x, 0)
+        # If team is not player
+        else:
+          # debug
+          team.vehicle.apply_power(random.uniform(0.33, 1.00))
+          #team.vehicle.apply_power(1)
 
-  tcod.console_flush()
+      # Apply acceleration, determine speed
+      speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
+      team.vehicle.speed += speed_to_add
+      if team.vehicle.speed > team.vehicle.current_max_speed_from_power:
+        team.vehicle.speed -= 0.1
+      if team.vehicle.speed > team.vehicle.max_speed:
+        team.vehicle.speed = team.vehicle.max_speed
+      elif team.vehicle.speed < 0:
+        team.vehicle.speed = 0
+      team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
+
+
+    # Check for collisions
+    vehicles_collided.clear()
+    handle_collisions(race, vehicles_collided, barricade_locations)
+
+    # Render
+    tcod.console_clear(con)
+    print_race(con, race, int(teams[player_team_index].vehicle.y), int(teams[player_team_index].vehicle.distance_traveled), barricade_locations)
+    tcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0,)
+
+    tcod.console_clear(panel)
+    print_lyrics(panel, race.lyrics[verse], active_lyrics_character)
+    tcod.console_blit(panel, 0, 0, main_viewport_width, panel_height, 0, 0, panel_y)
+
+    tcod.console_clear(panel_side)
+    print_panel_side(panel_side, build_race_stats(race), panel_side_width)
+    tcod.console_blit(panel_side, 0, 0, panel_side_width, screen_height, 0, panel_side_x, 0)
+
+    tcod.console_flush()
+
+  elif context == Context.TEAM_CREATION:
+    question = 'What is the name of your team?'
+    answer = ''
+    name_confirmed = False
+    while not name_confirmed:
+      tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
+      answer_line = '> ' + answer
+
+      action = handle_keys(key)
+      pressed_key_char = action.get('key_char')
+      if pressed_key_char:
+        answer += pressed_key_char
+
+      tcod.console_clear(full_panel)
+      
+      tcod.console_set_default_foreground(full_panel, tcod.sea)
+      tcod.console_set_default_background(full_panel, tcod.black)
+
+      tcod.console_print_rect_ex(full_panel, 0, 0, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, question)
+      tcod.console_print_rect_ex(full_panel, 0, 1, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, answer_line)
+      tcod.console_blit(full_panel, 0, 0, screen_height, screen_height, 0, 0, 0)
+
+      tcod.console_flush()
+  
+      print(answer)
+  
 
 
   #sleep(0.1)
