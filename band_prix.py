@@ -313,32 +313,66 @@ while not tcod.console_is_window_closed() and not exit_game:
     tcod.console_flush()
 
   elif context == Context.TEAM_CREATION:
-    question = 'What is the name of your team?'
-    answer = ''
-    name_confirmed = False
-    while not name_confirmed:
-      tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
-      answer_line = '> ' + answer
+    static_text_to_print = []
 
-      action = handle_keys(key)
-      pressed_key_char = action.get('key_char')
-      pressed_backspace = action.get('backspace')
-      if pressed_key_char:
-        answer += pressed_key_char
+    questions_options = {
+      'What is the name of your team?': [],
+      'What type of music does your team play?': [
+        (lex.country, 'Country'),
+        (lex.jam_band, 'Jam band'),
+        (lex.metal, 'Heavy metal')
+      ],
+      'What color is your team?': [
+        (tcod.pink, 'Pink'),
+        (tcod.yellow, 'Yellow'),
+        (tcod.green, 'Green'),
+        (tcod.orange, 'Orange'),
+        (tcod.light_cyan, 'Light cyan'),
+        (tcod.gray, 'Gray'),
+        (tcod.sea, 'Sea green'),
+        (tcod.blue, 'Blue'),
+        (tcod.red, 'Red'),
+        (tcod.sepia, 'Sepia')
+      ]
+    }
 
-      elif pressed_backspace:
-        answer = answer[:-1]
+    for question, option in questions_options.items():
+      answer = ''
+      response_confirmed = False
+      static_text_to_print.append(question)
+      #text_to_print.append(answer_line)
 
-      tcod.console_clear(full_panel)
-      
-      tcod.console_set_default_foreground(full_panel, tcod.sea)
-      tcod.console_set_default_background(full_panel, tcod.black)
+      # When confirm, also need to add answer to static text
 
-      tcod.console_print_rect_ex(full_panel, 0, 0, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, question)
-      tcod.console_print_rect_ex(full_panel, 0, 1, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, answer_line)
-      tcod.console_blit(full_panel, 0, 0, screen_height, screen_height, 0, 0, 0)
 
-      tcod.console_flush()
+      while not response_confirmed:
+        tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
+
+        answer_line = '> ' + answer
+        action = handle_keys(key)
+        pressed_key_char = action.get('key_char')
+        pressed_backspace = action.get('backspace')
+        pressed_enter = action.get('confirm')
+        if pressed_key_char:
+          answer += pressed_key_char
+        elif pressed_backspace:
+          answer = answer[:-1]
+        elif pressed_enter:
+          response_confirmed = True
+          static_text_to_print.append(answer_line)
+
+        tcod.console_clear(full_panel)
+        
+        tcod.console_set_default_foreground(full_panel, tcod.sea)
+        tcod.console_set_default_background(full_panel, tcod.black)
+
+        for x in range(0, len(static_text_to_print)):
+          tcod.console_print_rect_ex(full_panel, 0, x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
+
+        tcod.console_print_rect_ex(full_panel, 0, len(static_text_to_print), screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, answer_line)
+        tcod.console_blit(full_panel, 0, 0, screen_height, screen_height, 0, 0, 0)
+
+        tcod.console_flush()
 
   
 

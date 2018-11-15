@@ -50,9 +50,12 @@ def handle_keys(key):
   # elif key.vk == tcod.KEY_SPACE:
   #   return {'key_char': chr(key.c)}
 
-  # Backspace
+  # Other stuff
   elif key.vk == tcod.KEY_BACKSPACE:
     return {'backspace': True}
+
+  elif key.vk == tcod.KEY_ENTER or key.vk == tcod.KEY_KPENTER:
+    return {'confirm': True}
 
   # Exit game
   elif key.vk == tcod.KEY_ESCAPE:
