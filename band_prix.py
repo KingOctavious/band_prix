@@ -103,6 +103,116 @@ def finish_race(race, team, time):
   team.vehicle.acceleration = 0
 
 
+# handle_questions
+#
+# Takes a dict of questions:options, prints them to the screen, and returns
+# the responses in list form. Options should be provided as lists of
+# value:string tuples. If the question requires a text-input response,
+# provide an empty list argument for the options.
+def handle_questions(con, questions_options):
+  static_text_to_print = []
+  responses = []
+  for question, options in questions_options.items():
+    response = ''
+    confirmed = False
+    static_text_to_print.append(question)
+
+    while not confirmed:
+      tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
+      tcod.console_clear(full_panel)
+      tcod.console_set_default_foreground(full_panel, tcod.sea)
+      tcod.console_set_default_background(full_panel, tcod.black)
+
+      # For open text input
+      if len(options) == 0:     
+        response_data = handle_text_input(key, response)
+        response = response_data['value']
+        response_line = '> ' + response_data['string']
+        confirmed = response_data['confirmed']
+        tcod.console_print_rect_ex(full_panel, 0, len(static_text_to_print), screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, response_line)
+      # For input with discreet options
+      else:
+        response_data = handle_option_selection(key, options)
+        response = response_data['value']
+        response_text = response_data['string']
+        response_line = '> ' + response_text
+        confirmed = response_data['confirmed']
+        # Display options
+        for x in range(0, len(options)):
+          option_text = g.ALPHABET[x] + '. ' + options[x][1]
+          tcod.console_print_rect_ex(full_panel, 0, len(static_text_to_print) + x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
+
+      # Once we get a response, do this stuff:
+      if confirmed:
+        if len(options) > 0:
+          # Clear to remove list of options
+          tcod.console_clear(full_panel)
+        static_text_to_print.append(response_line)
+        responses.append(response)
+
+      # Do this stuff every time no matter what
+      for x in range(0, len(static_text_to_print)):
+        tcod.console_print_rect_ex(full_panel, 0, x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
+      tcod.console_blit(full_panel, 0, 0, screen_height, screen_height, 0, 0, 0)
+      tcod.console_flush()
+
+
+  sleep(0.4)
+  return responses
+
+
+# Returns dictionary in following format:
+# {
+#   'value': program-usable value of response,
+#   'string': string representation of response,
+#   'confirmed': bool describing whether input is complete
+# } 
+def handle_text_input(key, response):
+  confirmed = False
+  action = handle_keys(key)
+  pressed_key_char = action.get('key_char')
+  pressed_backspace = action.get('backspace')
+  pressed_enter = action.get('confirm')
+  if pressed_key_char:
+    response += pressed_key_char
+  elif pressed_backspace:
+    response = response[:-1]
+  elif pressed_enter:
+    confirmed = True
+
+  return {
+    'value': response,
+    'string': response,
+    'confirmed': confirmed
+  }
+
+# Returns dictionary in following format:
+# {
+#   'value': program-usable value of response,
+#   'string': string representation of response,
+#   'confirmed': bool describing whether input is complete
+# } 
+def handle_option_selection(key, options):
+  confirmed = False
+  action = handle_keys(key)
+  pressed_key_char = action.get('key_char')
+  response = None
+  response_text = ''
+  if pressed_key_char in g.ALPHABET:
+    index = g.ALPHABET.index(pressed_key_char)
+    if index < len(options):
+      response = options[index][0]
+      response_text = options[index][1]
+      confirmed = True
+
+  return {
+    'value': response,
+    'string' : response_text,
+    'confirmed': confirmed
+  }
+    
+
+  # End function definitions ##################################################
 
 FPS_CAP = 60
 #frame_render_time = 1 / FPS_CAP
@@ -313,15 +423,8 @@ while not tcod.console_is_window_closed() and not exit_game:
     tcod.console_flush()
 
   elif context == Context.TEAM_CREATION:
-    static_text_to_print = []
-
     questions_options = {
       'What is the name of your team?': [],
-      'What type of music does your team play?': [
-        (lex.country, 'Country'),
-        (lex.jam_band, 'Jam band'),
-        (lex.metal, 'Heavy metal')
-      ],
       'What color is your team?': [
         (tcod.red, '%c%c%c%cRed%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP)),
         (tcod.orange, '%c%c%c%cOrange%c'%(tcod.COLCTRL_FORE_RGB, tcod.orange.r + 256, tcod.orange.g + 256, tcod.orange.b + 256, tcod.COLCTRL_STOP)),
@@ -340,62 +443,9 @@ while not tcod.console_is_window_closed() and not exit_game:
       ]
     }
 
-    responses = []
-    for question, options in questions_options.items():
-      answer = ''
-      response_confirmed = False
-      static_text_to_print.append(question)
+    responses = handle_questions(full_panel, questions_options)
 
-      while not response_confirmed:
-        tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
-
-        answer_line = '> ' + answer
-
-        tcod.console_clear(full_panel)
-        tcod.console_set_default_foreground(full_panel, tcod.sea)
-        tcod.console_set_default_background(full_panel, tcod.black)
-        for x in range(0, len(static_text_to_print)):
-          tcod.console_print_rect_ex(full_panel, 0, x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
-
-        # For open text input
-        if len(options) == 0:
-          # Handle input
-          action = handle_keys(key)
-          pressed_key_char = action.get('key_char')
-          pressed_backspace = action.get('backspace')
-          pressed_enter = action.get('confirm')
-          if pressed_key_char:
-            answer += pressed_key_char
-          elif pressed_backspace:
-            answer = answer[:-1]
-          elif pressed_enter:
-            response_confirmed = True
-            responses.append(answer)
-            static_text_to_print.append(answer_line)
-
-          tcod.console_print_rect_ex(full_panel, 0, len(static_text_to_print), screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, answer_line)
-
-
-        # For input with discreet options
-        else:
-          # Display options
-          for x in range(0, len(options)):
-            option_text = g.ALPHABET[x] + '. ' + options[x][1]
-            tcod.console_print_rect_ex(full_panel, 0, len(static_text_to_print) + x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
-
-          # Handle input
-          action = handle_keys(key)
-          pressed_key_char = action.get('key_char')
-          if pressed_key_char in g.ALPHABET:
-            index = g.ALPHABET.index(pressed_key_char)
-            if index < len(options):
-              responses.append(options[index][0])
-              static_text_to_print.append('> {}'.format(options[index][1]))
-              response_confirmed = True
-
-
-        tcod.console_blit(full_panel, 0, 0, screen_height, screen_height, 0, 0, 0)
-        tcod.console_flush()
+  exit_game = True
 
   
 
