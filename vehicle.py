@@ -1,10 +1,11 @@
+import libtcodpy as tcod
 from vehicle_body import Vehicle_Body
 import vehicle_bodies
 
 class Vehicle:
   MAX_COMPONENT_CONDITION = 100
 
-  def __init__(self, body, color):
+  def __init__(self, body, color=tcod.white):
     self.body = Vehicle_Body(body.rows) # Do it like this to force copy
     self.color = color
 

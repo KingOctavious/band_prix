@@ -415,6 +415,14 @@ jam_band = Lexicon(jam_band_nouns, jam_band_verbs, jam_band_adjectives)
 country_metal = Lexicon(cm_nouns, cm_verbs, cm_adjectives)
 
 
+
+genres_lexicons = [
+  (country, 'country'),
+  (metal, 'heavy metal'),
+  (jam_band, 'jam band')
+]
+
+
 # articles_and_possessive_pronouns = [
 # 	'her',
 # 	'his',

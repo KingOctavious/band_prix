@@ -1,4 +1,8 @@
 from circuit import Circuit
 import tracks
 
-circuit1 = Circuit('Circuit of Monanomos', tracks.track_layout_1)
+ALL = [
+  Circuit('Circuit of Monanomos', tracks.track_layout_1),
+  Circuit('Circuit de Transylvania', tracks.track_layout_2),
+  Circuit('Circuit the Loomgardens', tracks.track_layout_3),
+]

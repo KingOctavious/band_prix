@@ -10,6 +10,7 @@ from physics import *
 from race import Race
 import random
 from render import *
+from season import Season
 from song_generator import build_song
 from team import Team
 from time import sleep
@@ -119,9 +120,9 @@ def handle_questions(con, questions_options):
 
     while not confirmed:
       tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
-      tcod.console_clear(full_panel)
-      tcod.console_set_default_foreground(full_panel, tcod.sea)
-      tcod.console_set_default_background(full_panel, tcod.black)
+      tcod.console_clear(con)
+      tcod.console_set_default_foreground(con, tcod.sea)
+      tcod.console_set_default_background(con, tcod.black)
 
       # For open text input
       if len(options) == 0:     
@@ -129,7 +130,7 @@ def handle_questions(con, questions_options):
         response = response_data['value']
         response_line = '> ' + response_data['string']
         confirmed = response_data['confirmed']
-        tcod.console_print_rect_ex(full_panel, 0, len(static_text_to_print), screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, response_line)
+        tcod.console_print_rect_ex(con, 0, len(static_text_to_print), screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, response_line)
       # For input with discreet options
       else:
         response_data = handle_option_selection(key, options)
@@ -140,20 +141,20 @@ def handle_questions(con, questions_options):
         # Display options
         for x in range(0, len(options)):
           option_text = g.ALPHABET[x] + '. ' + options[x][1]
-          tcod.console_print_rect_ex(full_panel, 0, len(static_text_to_print) + x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
+          tcod.console_print_rect_ex(con, 0, len(static_text_to_print) + x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
 
       # Once we get a response, do this stuff:
       if confirmed:
         if len(options) > 0:
           # Clear to remove list of options
-          tcod.console_clear(full_panel)
+          tcod.console_clear(con)
         static_text_to_print.append(response_line)
         responses.append(response)
 
       # Do this stuff every time no matter what
       for x in range(0, len(static_text_to_print)):
-        tcod.console_print_rect_ex(full_panel, 0, x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
-      tcod.console_blit(full_panel, 0, 0, screen_height, screen_height, 0, 0, 0)
+        tcod.console_print_rect_ex(con, 0, x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
+      tcod.console_blit(con, 0, 0, screen_height, screen_height, 0, 0, 0)
       tcod.console_flush()
 
 
@@ -173,7 +174,9 @@ def handle_text_input(key, response):
   pressed_key_char = action.get('key_char')
   pressed_backspace = action.get('backspace')
   pressed_enter = action.get('confirm')
-  if pressed_key_char:
+
+  RESPONSE_MAX = 30
+  if pressed_key_char and len(response) < RESPONSE_MAX:
     response += pressed_key_char
   elif pressed_backspace:
     response = response[:-1]
@@ -265,11 +268,10 @@ tcod.sys_set_fps(FPS_CAP)
 
 
 teams = [
-  Team('Kasvot Vaxt', Vehicle(vehicle_bodies.v_bod_1, tcod.yellow)),
-  Team('ViscDuds', Vehicle(vehicle_bodies.v_bod_1, tcod.green)),
-  Team('The Jack Straw Band', Vehicle(vehicle_bodies.v_bod_1, tcod.pink), True),
-  Team('The Billiards', Vehicle(vehicle_bodies.v_bod_1, tcod.orange)),
-  Team('Strange Dan Gustafvist', Vehicle(vehicle_bodies.v_bod_1, tcod.light_cyan)),
+  Team('Kasvot Vaxt', tcod.azure, Vehicle(vehicle_bodies.v_bod_1)),
+  Team('ViscDuds', tcod.azure, Vehicle(vehicle_bodies.v_bod_1)),
+  Team('The Billiards', tcod.green, Vehicle(vehicle_bodies.v_bod_1)),
+  Team('Strange Dan Gustafvist', tcod.yellow, Vehicle(vehicle_bodies.v_bod_1)),
 ]
 
 
@@ -299,7 +301,7 @@ lyrics = [
   'You will always remember where you were'
 ]
 
-race = Race(teams, circuits.circuit1, lyrics)
+race = Race(teams, circuits.ALL[0], lyrics)
 
 # Figure out which team index is the player's team; also reset all vehciles' distance_traveled
 player_team_index = 0
@@ -433,7 +435,8 @@ while not tcod.console_is_window_closed() and not exit_game:
         (tcod.sea, '%c%c%c%cSea%c'%(tcod.COLCTRL_FORE_RGB, tcod.sea.r + 256, tcod.sea.g + 256, tcod.sea.b + 256, tcod.COLCTRL_STOP)),
         (tcod.turquoise, '%c%c%c%cTurquoise%c'%(tcod.COLCTRL_FORE_RGB, tcod.turquoise.r + 256, tcod.turquoise.g + 256, tcod.turquoise.b + 256, tcod.COLCTRL_STOP)),
         (tcod.light_cyan, '%c%c%c%cLight cyan%c'%(tcod.COLCTRL_FORE_RGB, tcod.light_cyan.r + 256, tcod.light_cyan.g + 256, tcod.light_cyan.b + 256, tcod.COLCTRL_STOP)),
-        (tcod.blue, '%c%c%c%cBlue%c'%(tcod.COLCTRL_FORE_RGB, tcod.blue.r + 256, tcod.blue.g + 256, tcod.blue.b + 256, tcod.COLCTRL_STOP)),
+        (tcod.azure, '%c%c%c%cAzure%c'%(tcod.COLCTRL_FORE_RGB, tcod.azure.r + 256, tcod.azure.g + 256, tcod.azure.b + 256, tcod.COLCTRL_STOP)),
+        #(tcod.blue, '%c%c%c%cBlue%c'%(tcod.COLCTRL_FORE_RGB, tcod.blue.r + 256, tcod.blue.g + 256, tcod.blue.b + 256, tcod.COLCTRL_STOP)),
         (tcod.purple, '%c%c%c%cPurple%c'%(tcod.COLCTRL_FORE_RGB, tcod.purple.r + 256, tcod.purple.g + 256, tcod.purple.b + 256, tcod.COLCTRL_STOP)),
         (tcod.light_purple, '%c%c%c%cLight purple%c'%(tcod.COLCTRL_FORE_RGB, tcod.light_purple.r + 256, tcod.light_purple.g + 256, tcod.light_purple.b + 256, tcod.COLCTRL_STOP)),
         (tcod.pink, '%c%c%c%cPink%c'%(tcod.COLCTRL_FORE_RGB, tcod.pink.r + 256, tcod.pink.g + 256, tcod.pink.b + 256, tcod.COLCTRL_STOP)),
@@ -444,10 +447,31 @@ while not tcod.console_is_window_closed() and not exit_game:
     }
 
     responses = handle_questions(full_panel, questions_options)
+    player_team = Team(responses[0], responses[1], Vehicle(vehicle_bodies.v_bod_1), True)
 
-  exit_game = True
+    # Build competition
+    p_color = player_team.color
+    for ai in teams:
+      if ai.color == p_color:
+        # TODO: Make this better
+        ai.set_color(tcod.peach)
+    teams.append(player_team)
 
-  
+    # Build season
+    season_circuits = []
+    for circuit in circuits.ALL:
+      season_circuits.append(circuit)
+    season = Season(2094, season_circuits, teams)
+
+    context = Context.SEASON_OVERVIEW
+    
+  elif context == Context.SEASON_OVERVIEW:
+    tcod.console_clear(full_panel)
+    season_title_text = str(season.year)
+    tcod.console_print_ex(full_panel, int(screen_width / 2), 0, tcod.BKGND_SET, tcod.CENTER, season_title_text)
+    tcod.console_blit(full_panel, 0, 0, screen_width, screen_height, 0, 0, 0)
+
+    tcod.console_flush()
 
 
   #sleep(0.1)
