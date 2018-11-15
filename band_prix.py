@@ -318,12 +318,16 @@ while not tcod.console_is_window_closed() and not exit_game:
     name_confirmed = False
     while not name_confirmed:
       tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
-      answer_line = '> ' + answer
+      answer_line = '> ' + answer.title()
 
       action = handle_keys(key)
       pressed_key_char = action.get('key_char')
+      pressed_backspace = action.get('backspace')
       if pressed_key_char:
         answer += pressed_key_char
+
+      elif pressed_backspace:
+        answer = answer[:-1]
 
       tcod.console_clear(full_panel)
       
@@ -335,8 +339,7 @@ while not tcod.console_is_window_closed() and not exit_game:
       tcod.console_blit(full_panel, 0, 0, screen_height, screen_height, 0, 0, 0)
 
       tcod.console_flush()
-  
-      print(answer)
+
   
 
 

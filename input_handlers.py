@@ -7,7 +7,7 @@ def handle_keys(key):
   elif key.vk == tcod.KEY_RIGHT:
     return {'steer': 1}
 
-  # Type lyrics
+  # Type characters
   elif key.vk == tcod.KEY_CHAR: 
     return {'key_char': chr(key.c)}
 
@@ -43,6 +43,10 @@ def handle_keys(key):
 
   elif key.vk == tcod.KEY_SPACE:
     return {'key_char': chr(key.c)}
+
+  # Backspace
+  elif key.vk == tcod.KEY_BACKSPACE:
+    return {'backspace': True}
 
   # Exit game
   elif key.vk == tcod.KEY_ESCAPE:
