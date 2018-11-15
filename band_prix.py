@@ -318,7 +318,7 @@ while not tcod.console_is_window_closed() and not exit_game:
     name_confirmed = False
     while not name_confirmed:
       tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
-      answer_line = '> ' + answer.title()
+      answer_line = '> ' + answer
 
       action = handle_keys(key)
       pressed_key_char = action.get('key_char')
