@@ -6,8 +6,8 @@ class Team:
     self.isPlayer = isPlayer
     self.finished_current_race = False
 
-    self.vehicle.body.color = color
+    self.vehicle.color = color
 
   def set_color(self, color):
     self.color = color
-    self.vehicle.body.color = color
+    self.vehicle.color = color

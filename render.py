@@ -171,7 +171,7 @@ def print_vehicles(con, race, player_y, distance_traveled_by_player):
         y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, int(y), race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, int(y), race.teams[n].vehicle.color)
-        print(race.teams[n].vehicle.color)
+        #print(race.teams[n].vehicle.body.color)
 
 
 def print_race(con, race, player_y, distance_traveled_by_player, barricade_locations_holder):

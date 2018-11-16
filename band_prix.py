@@ -278,6 +278,8 @@ tcod.sys_set_fps(FPS_CAP)
 key = tcod.Key()
 mouse = tcod.Mouse()
 exit_game = False
+season = None
+race = None
 
 ### GAME LOOP #################################################################
 
@@ -287,6 +289,7 @@ context = Context.TEAM_CREATION
 while not tcod.console_is_window_closed() and not exit_game:
 
   if context == Context.RACE:
+    teams = race.teams
     lyrics = race.lyrics
     last_time_accelerated = 0
     vehicles_collided = set([])
@@ -308,7 +311,7 @@ while not tcod.console_is_window_closed() and not exit_game:
       time_elapsed_last_frame = tcod.sys_get_last_frame_length()
 
 
-      for team in race.teams:
+      for team in teams:
         # Apply collision physics if needed
         if team.vehicle in vehicles_collided:
           handle_post_collision(team.vehicle)
@@ -433,6 +436,7 @@ while not tcod.console_is_window_closed() and not exit_game:
     # Move on
     context = Context.SEASON_OVERVIEW
     
+
   elif context == Context.SEASON_OVERVIEW:
     confirm = False
     selected_option = 1
@@ -500,7 +504,7 @@ while not tcod.console_is_window_closed() and not exit_game:
       player_team_index = 0
       lexicon = lex.country
       title_and_song = build_song(lexicon)
-      race = Race(teams, season.circuits[season.next_race], title_and_song[1], title_and_song[0])
+      race = Race(season.teams, season.circuits[season.next_race], title_and_song[1], title_and_song[0])
       for x in range(0, len(race.teams)):
         race.teams[x].vehicle.distance_traveled = 0
         race.teams[x].vehicle.speed = 0
