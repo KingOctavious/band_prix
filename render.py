@@ -2,6 +2,7 @@ import libtcodpy as tcod
 
 import global_data as g
 from race import Race
+from season import Season
 from track_direction import Track_Direction as td
 import visuals
 
@@ -82,6 +83,26 @@ def print_panel_side(panel, race_stats, panel_width):
     line_no += 1
 
 
+def print_season_overview(con, panel_width, season):
+  overview = season.get_overview()
+
+  # For the highlighted next race
+  #tcod.console_set_color_control(tcod.COLCTRL_1, tcod.darker_sea, tcod.lightest_yellow)
+  tcod.console_set_color_control(tcod.COLCTRL_1, tcod.darker_sea, tcod.light_azure)
+
+  tcod.console_print_ex(con, int(panel_width / 2), 0, tcod.BKGND_SET, tcod.CENTER, str(season.year) + " SEASON")
+  for x in range(0, len(overview)):
+    race_name = overview[x][0]
+    winner_name = overview[x][1]
+    spaces = panel_width - len(race_name) - len(winner_name)
+    full_line = race_name + (' ' * spaces) + winner_name
+    if x == season.next_race:
+      full_line = '%c{}%c'.format(full_line)%(tcod.COLCTRL_1, tcod.COLCTRL_STOP)
+    tcod.console_print_ex(con, 0, x * 2 + 2, tcod.BKGND_SET, tcod.LEFT, full_line)
+    
+    
+
+
 def print_track(con, race, distance_traveled_by_player, barricade_locations_holder):
   barricade_locations_holder.clear()
   lane_count = len(race.teams)
@@ -150,6 +171,7 @@ def print_vehicles(con, race, player_y, distance_traveled_by_player):
         y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, int(y), race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, int(y), race.teams[n].vehicle.color)
+        print(race.teams[n].vehicle.color)
 
 
 def print_race(con, race, player_y, distance_traveled_by_player, barricade_locations_holder):

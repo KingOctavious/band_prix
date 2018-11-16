@@ -2,10 +2,11 @@ import global_data as g
 
 class Race:
 
-  def __init__(self, teams, circuit, lyrics):
+  def __init__(self, teams, circuit, lyrics, song_title):
     self.teams = teams
     self.circuit = circuit
     self.lyrics = lyrics
+    self.song_title = song_title
 
     self.lane_padding = 2
 
