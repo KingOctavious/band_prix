@@ -6,7 +6,8 @@ class Season:
     self.circuits = circuits
     self.teams = teams
     
-    self.next_race = 0
+    self.current_race = 0
+    self.races = [] # Doesn't populate until after race happens
 
     # Each team's points
     self.standings = {}
@@ -20,6 +21,7 @@ class Season:
       for team in teams:
         self.results[circuit][team] = None
 
+
   # get_overview
   #
   # Returns list of (race info, winner name) tuples
@@ -28,7 +30,7 @@ class Season:
     for x in range(0, len(self.circuits)):
       c_name = self.circuits[x].name
       winner_name = ''
-      if x < self.next_race:
+      if x < self.current_race:
         sorted_results = sorted(self.results[self.circuits[x]], key=self.results[self.circuits[x]].__getitem__, reverse=True)
         winner_name = sorted_results[0][0].name
 
