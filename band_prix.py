@@ -2,6 +2,7 @@ import libtcodpy as tcod
 
 import circuits
 from context import Context
+from context_handlers import *
 import global_data as g
 from input_handlers import handle_keys
 from interval_stat import Interval_Stat
@@ -20,88 +21,6 @@ from vehicle_body import Vehicle_Body
 import vehicle_bodies
 import visuals
 
-
-def get_distance_traveled(team):
-  return team.vehicle.distance_traveled
-
-# build_race_stats
-#
-# returns list of Interval_Stat objects in proper order
-def build_race_stats(race):  
-  ordered_race_stats = []
-
-  # Teams that have finished are locked in place based on finishing info
-  already_finished = [] # This will make things simpler later in the function
-  for place_team in race.finished_teams:
-    place = place_team[0]
-    team = place_team[1]
-    time = str(format(round((race.finish_times[team]), 2), '.2f'))
-    ordered_race_stats.append(Interval_Stat(place_team[0], place_team[1], time))
-    already_finished.append(team)
-
-  sorted_teams = sorted(race.teams, key=get_distance_traveled, reverse=True)
-
-  # Now list non-finished teams
-  counter = 1
-  for team in sorted_teams:
-    place = counter
-    if team not in already_finished:
-      dist_to_first = sorted_teams[0].vehicle.distance_traveled - team.vehicle.distance_traveled
-
-      # Check for tie with most recently checked vehicle
-      if len(ordered_race_stats) > 0:
-        if team.vehicle.distance_traveled == ordered_race_stats[len(ordered_race_stats) - 1].team.vehicle.distance_traveled:
-          place = ordered_race_stats[len(ordered_race_stats) - 1].place
-
-      interval = '----'
-      if (team.vehicle.speed >= 1):
-        interval = '+' + str(format(round((dist_to_first / team.vehicle.speed), 2), '.2f'))
-      ordered_race_stats.append(Interval_Stat(place, team, interval))
-    counter += 1
-
-  return ordered_race_stats
-
-
-
-def check_key_char_input(pressed_key_char, lyrics, active_lyrics_character):
-  target_char = lyrics[active_lyrics_character].lower()
-  correct = pressed_key_char.lower() == target_char
-  
-  if correct:
-    return True
-  else:
-    return False
-
-
-def finish_race(race, team, time):
-  # Update race finishing places and times ####################################
-
-  finished_teams_count = len(race.finished_teams)
-
-  # First check and see if this team ties with another
-  tie_occurred = False
-  if finished_teams_count > 0:
-    latest_place = race.finished_teams[finished_teams_count - 1][0]
-    latest_team = race.finished_teams[finished_teams_count - 1][1]
-    latest_time = race.finish_times[latest_team]
-
-    # If this team ties with the previously finished team
-    if latest_time == time:
-      tie_occurred = True
-      # Update pertinent info
-      race.finished_teams.append((latest_place, team))
-
-  if not tie_occurred:
-    finishing_place = finished_teams_count + 1
-    race.finished_teams.append((finishing_place, team))
-
-  # This happens the same way regardless of a tie
-  race.finish_times[team] = time
-
-
-  # Misc other things to take care of #########################################
-  team.finished_current_race = True
-  team.vehicle.acceleration = 0
 
 
 # handle_questions
@@ -130,7 +49,7 @@ def handle_questions(con, questions_options):
         response = response_data['value']
         response_line = '> ' + response_data['string']
         confirmed = response_data['confirmed']
-        tcod.console_print_rect_ex(con, 0, len(static_text_to_print), screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, response_line)
+        tcod.console_print_rect_ex(con, 0, len(static_text_to_print), g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, response_line)
       # For input with discreet options
       else:
         response_data = handle_option_selection(key, options)
@@ -141,7 +60,7 @@ def handle_questions(con, questions_options):
         # Display options
         for x in range(0, len(options)):
           option_text = g.ALPHABET[x] + '. ' + options[x][1]
-          tcod.console_print_rect_ex(con, 0, len(static_text_to_print) + x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
+          tcod.console_print_rect_ex(con, 0, len(static_text_to_print) + x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
 
       # Once we get a response, do this stuff:
       if confirmed:
@@ -153,8 +72,8 @@ def handle_questions(con, questions_options):
 
       # Do this stuff every time no matter what
       for x in range(0, len(static_text_to_print)):
-        tcod.console_print_rect_ex(con, 0, x, screen_width, screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
-      tcod.console_blit(con, 0, 0, screen_height, screen_height, 0, 0, 0)
+        tcod.console_print_rect_ex(con, 0, x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
+      tcod.console_blit(con, 0, 0, g.screen_height, g.screen_height, 0, 0, 0)
       tcod.console_flush()
 
 
@@ -237,37 +156,22 @@ TURN_BASED = False
 
 
 
-main_viewport_height = 50
-main_viewport_width = 80
-panel_height = 7
-panel_side_width = 30
 
-screen_width = main_viewport_width + panel_side_width
-screen_height = main_viewport_height + panel_height
 
 # Viewports ###################################################################
 tcod.console_set_custom_font(font_path, font_flags)
-tcod.console_init_root(screen_width, screen_height, GAME_TITLE, fullscreen)
+tcod.console_init_root(g.screen_width, g.screen_height, GAME_TITLE, fullscreen)
 
-con = tcod.console_new(main_viewport_width, main_viewport_height)
-
-panel_y = screen_height - panel_height
-panel = tcod.console_new(main_viewport_width, panel_height)
-tcod.console_set_alignment(panel, tcod.LEFT)
-
-panel_side_x = screen_width - panel_side_width
-panel_side = tcod.console_new(panel_side_width, screen_height)
-
-full_panel = tcod.console_new(screen_width, screen_height)
+full_panel = tcod.console_new(g.screen_width, g.screen_height)
 tcod.console_set_alignment(full_panel, tcod.LEFT)
 tcod.console_set_default_foreground(full_panel, tcod.sea)
 
 bottom_selector_panel_h = 9
-bottom_selector_panel = tcod.console_new(screen_width, bottom_selector_panel_h)
+bottom_selector_panel = tcod.console_new(g.screen_width, bottom_selector_panel_h)
 tcod.console_set_alignment(bottom_selector_panel, tcod.CENTER)
 tcod.console_set_default_foreground(bottom_selector_panel, tcod.lightest_magenta)
 
-nearly_full_panel = tcod.console_new(screen_width, screen_height - bottom_selector_panel_h)
+nearly_full_panel = tcod.console_new(g.screen_width, g.screen_height - bottom_selector_panel_h)
 tcod.console_set_alignment(nearly_full_panel, tcod.LEFT)
 tcod.console_set_default_foreground(nearly_full_panel, tcod.sea)
 # End viewports ###############################################################
@@ -289,104 +193,9 @@ context = Context.TEAM_CREATION
 while not tcod.console_is_window_closed() and not exit_game:
 
   if context == Context.RACE:
-    teams = race.teams
-    lyrics = race.lyrics
-    last_time_accelerated = 0
-    vehicles_collided = set([])
-    active_lyrics_character = 0
-    keypress_timer = 99999
-    race_finished = False
-    race_start_time = tcod.sys_elapsed_seconds()
-    verse = 0
-    speed_increase_this_turn = 0
-    song_completed = False
-    barricade_locations = [] # holds tuples of x, y barricade locations
-
-    while not race_finished:
-      tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
-      active_key_char = lyrics[verse][active_lyrics_character]
-
-      keypress_timer += tcod.sys_get_last_frame_length()
-      total_time_elapsed = tcod.sys_elapsed_seconds()
-      time_elapsed_last_frame = tcod.sys_get_last_frame_length()
 
 
-      for team in teams:
-        # Apply collision physics if needed
-        if team.vehicle in vehicles_collided:
-          handle_post_collision(team.vehicle)
-
-        else:
-          if team.vehicle.distance_traveled >= len(race.circuit.track_shape) and not team.finished_current_race:
-            finish_race(race, team, total_time_elapsed)
-
-          # Control player vehicle
-          if team.isPlayer:
-            action = handle_keys(key)
-            pressed_key_char = action.get('key_char')
-            steer = action.get('steer')
-            exit = action.get('exit')
-            powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
-            team.vehicle.apply_power(powerpct)
-            # debug
-            #team.vehicle.apply_power(.9)
-
-            if pressed_key_char:
-              correct = check_key_char_input(pressed_key_char, race.lyrics[verse], active_lyrics_character)
-              if correct:
-                keypress_timer = 0.0
-                active_lyrics_character += 1
-                if (active_lyrics_character >= len(lyrics[verse])):
-                  active_lyrics_character = 0
-                  verse += 1
-                  if verse >= len(lyrics):
-                    song_completed = True
-
-              else:
-                pass
-
-            if steer:
-              teams[player_team_index].vehicle.x += steer
-            
-            if exit:
-              exit_game = True
-
-          # If team is not player
-          else:
-            # debug
-            team.vehicle.apply_power(random.uniform(0.33, 1.00))
-            #team.vehicle.apply_power(1)
-
-        # Apply acceleration, determine speed
-        speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
-        team.vehicle.speed += speed_to_add
-        if team.vehicle.speed > team.vehicle.current_max_speed_from_power:
-          team.vehicle.speed -= 0.1
-        if team.vehicle.speed > team.vehicle.max_speed:
-          team.vehicle.speed = team.vehicle.max_speed
-        elif team.vehicle.speed < 0:
-          team.vehicle.speed = 0
-        team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
-
-
-      # Check for collisions
-      vehicles_collided.clear()
-      handle_collisions(race, vehicles_collided, barricade_locations)
-
-      # Render
-      tcod.console_clear(con)
-      print_race(con, race, int(teams[player_team_index].vehicle.y), int(teams[player_team_index].vehicle.distance_traveled), barricade_locations)
-      tcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0,)
-
-      tcod.console_clear(panel)
-      print_lyrics(panel, race.lyrics[verse], active_lyrics_character)
-      tcod.console_blit(panel, 0, 0, main_viewport_width, panel_height, 0, 0, panel_y)
-
-      tcod.console_clear(panel_side)
-      print_panel_side(panel_side, build_race_stats(race), panel_side_width)
-      tcod.console_blit(panel_side, 0, 0, panel_side_width, screen_height, 0, panel_side_x, 0)
-
-      tcod.console_flush()
+    do_race(race, key, mouse)
 
   elif context == Context.TEAM_CREATION:
     questions_options = {
@@ -444,11 +253,11 @@ while not tcod.console_is_window_closed() and not exit_game:
       tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
       tcod.console_clear(full_panel)
       season_title_text = str(season.year)
-      print_season_overview(full_panel, screen_width, season)
+      print_season_overview(full_panel, g.screen_width, season)
 
       tcod.console_clear(nearly_full_panel)
-      print_season_overview(nearly_full_panel, screen_width, season)
-      tcod.console_blit(nearly_full_panel, 0, 0, screen_width, screen_height - bottom_selector_panel_h, 0, 0, 0)
+      print_season_overview(nearly_full_panel, g.screen_width, season)
+      tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
 
       spacing = 6
       options = [
@@ -477,8 +286,8 @@ while not tcod.console_is_window_closed() and not exit_game:
 
 
       if len(options) == 2:        
-        xy0 = (int(screen_width / 2) - len(option0_text) - int(spacing / 2), int(bottom_selector_panel_h / 2))
-        xy1 = (int(screen_width / 2) + int(spacing / 2), int(bottom_selector_panel_h / 2))
+        xy0 = (int(g.screen_width / 2) - len(option0_text) - int(spacing / 2), int(bottom_selector_panel_h / 2))
+        xy1 = (int(g.screen_width / 2) + int(spacing / 2), int(bottom_selector_panel_h / 2))
         tcod.console_print_ex(bottom_selector_panel, xy0[0], xy0[1], tcod.BKGND_SET, tcod.LEFT, option0_text)
         tcod.console_print_ex(bottom_selector_panel, xy1[0], xy1[1], tcod.BKGND_SET, tcod.LEFT, option1_text)
 
@@ -491,7 +300,7 @@ while not tcod.console_is_window_closed() and not exit_game:
           tcod.console_hline(bottom_selector_panel, xy1[0] - 2, xy1[1] + 1, len(option1_text) + 4)
         
 
-      tcod.console_blit(bottom_selector_panel, 0, 0, screen_width, bottom_selector_panel_h, 0, 0, screen_height - bottom_selector_panel_h)
+      tcod.console_blit(bottom_selector_panel, 0, 0, g.screen_width, bottom_selector_panel_h, 0, 0, g.screen_height - bottom_selector_panel_h)
 
       tcod.console_flush()
 
@@ -500,8 +309,6 @@ while not tcod.console_is_window_closed() and not exit_game:
     if selection == 'go forward':
       # Generate all the race info
 
-      # Figure out which team index is the player's team; also reset certain vehicle data
-      player_team_index = 0
       lexicon = lex.country
       title_and_song = build_song(lexicon)
       race = Race(season.teams, season.circuits[season.next_race], title_and_song[1], title_and_song[0])
@@ -509,8 +316,7 @@ while not tcod.console_is_window_closed() and not exit_game:
         race.teams[x].vehicle.distance_traveled = 0
         race.teams[x].vehicle.speed = 0
         race.teams[x].finished_current_race = False
-        if (race.teams[x].isPlayer):
-          player_team_index = x
+
 
       # Move on
       context = Context.RACE
