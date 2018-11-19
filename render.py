@@ -155,7 +155,10 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
           else:
             lane_stripe = str(visuals.STRIPE_CHARS[td.STRAIGHT])
 
-          tcod.console_put_char(con, col + offset, y, lane_stripe, tcod.BKGND_NONE)
+          # Print the lane stripe only every third time, except always print it
+          # if it is a curve.
+          if track_row % 3 == 0 or lane_stripe != visuals.STRIPE_CHARS[td.STRAIGHT]:
+            tcod.console_put_char(con, col + offset, y, lane_stripe, tcod.BKGND_NONE)
 
 
 

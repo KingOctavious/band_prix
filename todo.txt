@@ -1,5 +1,3 @@
-Need to adjust camera if car gets pushed forward/back
-make lane stripes print onlyi 1/3 times so movement can be seen
 vehicle turning AI
 collisions should impact speed
 collisions aren't calculated correctly if they somehow only hit, for instance, 2nd full row of car (or maybe they are--not sure)
