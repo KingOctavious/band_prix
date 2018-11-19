@@ -28,6 +28,33 @@ import vehicle_bodies
 # Helper functions
 ###############################################################################
 
+
+def announce_song(song_title, lexicon, circuit):
+  announcement = [
+    'Welcome to the {} Band Prix!'.format(circuit.name),
+    'Today you will be playing the hit {} song'.format(lexicon.name),
+    '"{}"'.format(song_title),
+    'Get ready!'
+  ]
+
+  w = int(g.screen_width * .35)
+  h = int(g.screen_height * .20)
+  announce_window = tcod.console_new(w, h)
+  tcod.console_set_alignment(announce_window, tcod.CENTER)
+
+  x = int(g.screen_width * 0.5 - w * 0.5)
+  y = int(g.screen_height * 0.5 - h * 0.5)
+
+  for line in announcement:
+    tcod.console_clear(announce_window)
+    tcod.console_print_rect_ex(announce_window, int(w/2), 0, w, h, tcod.BKGND_SET, tcod.CENTER, line)
+    tcod.console_blit(announce_window, 0, 0, w, h, 0, x, y)
+    tcod.console_flush()
+    time.sleep(2)
+
+
+
+
 # build_race_stats
 #
 # returns list of Interval_Stat objects in proper order
@@ -263,19 +290,22 @@ def do_race(key, mouse):
   active_lyrics_character = 0
   keypress_timer = 99999
   race_finished = False
-  race_start_time = tcod.sys_elapsed_seconds()
   verse = 0
   speed_increase_this_turn = 0
   song_completed = False
   barricade_locations = [] # holds tuples of x, y barricade locations
 
+  announce_song(title_and_song[0], lexicon, race.circuit)
+
+  time_elapsed_last_frame = 0
+  race_start_time = tcod.sys_elapsed_seconds()
   while not race_finished:
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
     active_key_char = lyrics[verse][active_lyrics_character]
 
     keypress_timer += tcod.sys_get_last_frame_length()
     total_time_elapsed = tcod.sys_elapsed_seconds()
-    time_elapsed_last_frame = tcod.sys_get_last_frame_length()
+    
 
 
     for team in teams:
@@ -285,7 +315,7 @@ def do_race(key, mouse):
 
       else:
         if team.vehicle.distance_traveled >= len(race.circuit.track_shape) and not team.finished_current_race:
-          finish_race(race, team, total_time_elapsed)
+          finish_race(race, team, total_time_elapsed - race_start_time)
 
         # Control player vehicle
         if team.isPlayer:
@@ -354,6 +384,8 @@ def do_race(key, mouse):
     tcod.console_blit(side_viewport, 0, 0, side_viewport_width, g.screen_height, 0, side_viewport_x, 0)
 
     tcod.console_flush()
+
+    time_elapsed_last_frame = tcod.sys_get_last_frame_length()
 
 
 def do_season_overview(key, mouse):

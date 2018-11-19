@@ -408,11 +408,11 @@ for item in metal_adjectives:
 
 
 
-country = Lexicon(country_nouns, country_verbs, country_adjectives)
-metal = Lexicon(metal_nouns, metal_verbs, metal_adjectives)
-jam_band = Lexicon(jam_band_nouns, jam_band_verbs, jam_band_adjectives)
+country = Lexicon('country', country_nouns, country_verbs, country_adjectives)
+metal = Lexicon('heavy metal', metal_nouns, metal_verbs, metal_adjectives)
+jam_band = Lexicon('jam band', jam_band_nouns, jam_band_verbs, jam_band_adjectives)
 
-country_metal = Lexicon(cm_nouns, cm_verbs, cm_adjectives)
+country_metal = Lexicon('country metal fusion', cm_nouns, cm_verbs, cm_adjectives)
 
 
 
@@ -421,24 +421,3 @@ genres_lexicons = [
   (metal, 'heavy metal'),
   (jam_band, 'jam band')
 ]
-
-
-# articles_and_possessive_pronouns = [
-# 	'her',
-# 	'his',
-# 	'my',
-# 	'our',
-# 	'the',
-# 	'their',
-# 	'your'
-# ]
-
-# pronouns = [
-# 	'he',
-# 	'I',
-# 	'she',
-# 	'someone',
-# 	'they',
-# 	'you'
-# ]
-
