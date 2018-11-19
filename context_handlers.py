@@ -29,7 +29,7 @@ import vehicle_bodies
 ###############################################################################
 
 
-def announce_song(song_title, lexicon, circuit):
+def get_race_intro(song_title, lexicon, circuit):
   announcement = [
     'Welcome to the {} Band Prix!'.format(circuit.name),
     'Today you will be playing the hit {} song'.format(lexicon.name),
@@ -37,22 +37,7 @@ def announce_song(song_title, lexicon, circuit):
     'Get ready!'
   ]
 
-  w = int(g.screen_width * .35)
-  h = int(g.screen_height * .20)
-  announce_window = tcod.console_new(w, h)
-  tcod.console_set_alignment(announce_window, tcod.CENTER)
-
-  x = int(g.screen_width * 0.5 - w * 0.5)
-  y = int(g.screen_height * 0.5 - h * 0.5)
-
-  for line in announcement:
-    tcod.console_clear(announce_window)
-    tcod.console_print_rect_ex(announce_window, int(w/2), 0, w, h, tcod.BKGND_SET, tcod.CENTER, line)
-    tcod.console_blit(announce_window, 0, 0, w, h, 0, x, y)
-    tcod.console_flush()
-    time.sleep(2)
-
-
+  return announcement
 
 
 # build_race_stats
@@ -267,6 +252,13 @@ def do_race(key, mouse):
   side_viewport_x = g.screen_width - side_viewport_width  
   side_viewport = tcod.console_new(side_viewport_width, g.screen_height)
 
+  intro_w = int(g.screen_width * .35)
+  intro_h = int(g.screen_height * .20)
+  intro_x = int(g.screen_width * 0.5 - intro_w * 0.5)
+  intro_y = int(g.screen_height * 0.5 - intro_h * 0.5)
+  intro_window = tcod.console_new(intro_w, intro_h)
+  tcod.console_set_alignment(intro_window, tcod.CENTER)
+
   lexicon = lex.country
   title_and_song = build_song(lexicon)
   race = Race(g.season.teams, g.season.circuits[g.season.current_race], title_and_song[1], title_and_song[0])
@@ -285,90 +277,93 @@ def do_race(key, mouse):
       break
 
   lyrics = race.lyrics
-  last_time_accelerated = 0
   vehicles_collided = set([])
   active_lyrics_character = 0
   keypress_timer = 99999
   race_finished = False
+  race_started = False
   verse = 0
-  speed_increase_this_turn = 0
   song_completed = False
   barricade_locations = [] # holds tuples of x, y barricade locations
-
-  announce_song(title_and_song[0], lexicon, race.circuit)
-
+  intro_lines = get_race_intro(title_and_song[0], lexicon, race.circuit)
+  current_intro_line = 0
+  first_frame = True;
   time_elapsed_last_frame = 0
   race_start_time = tcod.sys_elapsed_seconds()
+  
   while not race_finished:
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
     active_key_char = lyrics[verse][active_lyrics_character]
-
     keypress_timer += tcod.sys_get_last_frame_length()
     total_time_elapsed = tcod.sys_elapsed_seconds()
+        
     
+    if race_started:
+      if not first_frame:
+        time_elapsed_last_frame = tcod.sys_get_last_frame_length()
+      for team in teams:
+        # Apply collision physics if needed
+        if team.vehicle in vehicles_collided:
+          handle_post_collision(team.vehicle)
 
-
-    for team in teams:
-      # Apply collision physics if needed
-      if team.vehicle in vehicles_collided:
-        handle_post_collision(team.vehicle)
-
-      else:
-        if team.vehicle.distance_traveled >= len(race.circuit.track_shape) and not team.finished_current_race:
-          finish_race(race, team, total_time_elapsed - race_start_time)
-
-        # Control player vehicle
-        if team.isPlayer:
-          action = handle_keys(key)
-          pressed_key_char = action.get('key_char')
-          steer = action.get('steer')
-          exit = action.get('exit')
-          powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
-          team.vehicle.apply_power(powerpct)
-          # debug
-          #team.vehicle.apply_power(.9)
-
-          if pressed_key_char:
-            correct = check_key_char_input(pressed_key_char, race.lyrics[verse], active_lyrics_character)
-            if correct:
-              keypress_timer = 0.0
-              active_lyrics_character += 1
-              if (active_lyrics_character >= len(lyrics[verse])):
-                active_lyrics_character = 0
-                verse += 1
-                if verse >= len(lyrics):
-                  song_completed = True
-
-            else:
-              pass
-
-          if steer:
-            teams[player_team_index].vehicle.x += steer
-          
-          if exit:
-            exit_game = True
-
-        # If team is not player
         else:
-          # debug
-          team.vehicle.apply_power(random.uniform(0.33, 1.00))
-          #team.vehicle.apply_power(1)
+          if team.vehicle.distance_traveled >= len(race.circuit.track_shape) and not team.finished_current_race:
+            finish_race(race, team, total_time_elapsed - race_start_time)
 
-      # Apply acceleration, determine speed
-      speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
-      team.vehicle.speed += speed_to_add
-      if team.vehicle.speed > team.vehicle.current_max_speed_from_power:
-        team.vehicle.speed -= 0.1
-      if team.vehicle.speed > team.vehicle.max_speed:
-        team.vehicle.speed = team.vehicle.max_speed
-      elif team.vehicle.speed < 0:
-        team.vehicle.speed = 0
-      team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
+          # Control player vehicle
+          if team.isPlayer:
+            action = handle_keys(key)
+            pressed_key_char = action.get('key_char')
+            steer = action.get('steer')
+            exit = action.get('exit')
+            powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
+            team.vehicle.apply_power(powerpct)
+            # debug
+            #team.vehicle.apply_power(.9)
+
+            if pressed_key_char:
+              correct = check_key_char_input(pressed_key_char, race.lyrics[verse], active_lyrics_character)
+              if correct:
+                keypress_timer = 0.0
+                active_lyrics_character += 1
+                if (active_lyrics_character >= len(lyrics[verse])):
+                  active_lyrics_character = 0
+                  verse += 1
+                  if verse >= len(lyrics):
+                    song_completed = True
+
+              else:
+                pass
+
+            if steer:
+              teams[player_team_index].vehicle.x += steer
+            
+            if exit:
+              exit_game = True
+
+          # If team is not player
+          else:
+            # debug
+            team.vehicle.apply_power(random.uniform(0.33, 1.00))
+            #team.vehicle.apply_power(1)
+
+        # Apply acceleration, determine speed
+        speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
+        team.vehicle.speed += speed_to_add
+        if team.vehicle.speed > team.vehicle.current_max_speed_from_power:
+          team.vehicle.speed -= 0.1
+        if team.vehicle.speed > team.vehicle.max_speed:
+          team.vehicle.speed = team.vehicle.max_speed
+        elif team.vehicle.speed < 0:
+          team.vehicle.speed = 0
+        team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
 
 
-    # Check for collisions
-    vehicles_collided.clear()
-    handle_collisions(race, vehicles_collided, barricade_locations)
+      # Check for collisions
+      vehicles_collided.clear()
+      handle_collisions(race, vehicles_collided, barricade_locations)
+
+      first_frame = False
 
     # Render
     tcod.console_clear(main_viewport)
@@ -383,9 +378,17 @@ def do_race(key, mouse):
     print_panel_side(side_viewport, build_race_stats(race), side_viewport_width)
     tcod.console_blit(side_viewport, 0, 0, side_viewport_width, g.screen_height, 0, side_viewport_x, 0)
 
+    if not race_started:
+      if current_intro_line > 0:
+        time.sleep(2)
+      tcod.console_clear(intro_window)
+      tcod.console_print_rect_ex(intro_window, int(intro_w/2), 0, intro_w, intro_h, tcod.BKGND_SET, tcod.CENTER, intro_lines[current_intro_line])
+      tcod.console_blit(intro_window, 0, 0, intro_w, intro_h, 0, intro_x, intro_y)
+      current_intro_line += 1
+      if current_intro_line >= len(intro_lines):
+        race_started = True
+        
     tcod.console_flush()
-
-    time_elapsed_last_frame = tcod.sys_get_last_frame_length()
 
 
 def do_season_overview(key, mouse):
