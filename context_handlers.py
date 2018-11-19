@@ -29,12 +29,20 @@ import vehicle_bodies
 ###############################################################################
 
 
+# get_race_intro
+#
+# Returns list of tuples containing the line of text that should be displayed,
+# coupled with the time (in seconds) to display each.
 def get_race_intro(song_title, lexicon, circuit):
   announcement = [
-    'Welcome to the {} Band Prix!'.format(circuit.name),
-    'Today you will be playing the hit {} song'.format(lexicon.name),
-    '"{}"'.format(song_title),
-    'Get ready!'
+    ('Welcome to the {} Band Prix!'.format(circuit.name), 2),
+    ('Today you will be playing the hit {} song'.format(lexicon.name), 2),
+    ('Today you will be playing the hit {} song'.format(lexicon.name) + '\n' + '\n' + '\n' + '"{}"'.format(song_title), 2),
+    ('Get ready!', 2),
+    ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c*%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
+    ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
+    ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * * * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
+    #('',
   ]
 
   return announcement
@@ -258,6 +266,7 @@ def do_race(key, mouse):
   intro_y = int(g.screen_height * 0.5 - intro_h * 0.5)
   intro_window = tcod.console_new(intro_w, intro_h)
   tcod.console_set_alignment(intro_window, tcod.CENTER)
+  tcod.console_set_default_foreground(intro_window, tcod.sea)
 
   lexicon = lex.country
   title_and_song = build_song(lexicon)
@@ -290,7 +299,7 @@ def do_race(key, mouse):
   first_frame = True;
   time_elapsed_last_frame = 0
   race_start_time = tcod.sys_elapsed_seconds()
-  
+
   while not race_finished:
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
     active_key_char = lyrics[verse][active_lyrics_character]
@@ -379,14 +388,22 @@ def do_race(key, mouse):
     tcod.console_blit(side_viewport, 0, 0, side_viewport_width, g.screen_height, 0, side_viewport_x, 0)
 
     if not race_started:
-      if current_intro_line > 0:
-        time.sleep(2)
-      tcod.console_clear(intro_window)
-      tcod.console_print_rect_ex(intro_window, int(intro_w/2), 0, intro_w, intro_h, tcod.BKGND_SET, tcod.CENTER, intro_lines[current_intro_line])
-      tcod.console_blit(intro_window, 0, 0, intro_w, intro_h, 0, intro_x, intro_y)
-      current_intro_line += 1
-      if current_intro_line >= len(intro_lines):
+      # This structure is pretty ugly, but no time to clean it up
+      if current_intro_line == len(intro_lines):
+        time.sleep(intro_lines[current_intro_line - 1][1])
+      elif current_intro_line >= len(intro_lines):
         race_started = True
+      else:
+        tcod.console_clear(intro_window)
+        tcod.console_hline(intro_window, 0, 0, intro_w)
+        tcod.console_hline(intro_window, 0, intro_h - 1, intro_w)
+        tcod.console_vline(intro_window, 0, 0, intro_h)
+        tcod.console_vline(intro_window, intro_w - 1, 0, intro_h)
+        tcod.console_print_rect_ex(intro_window, int(intro_w/2), 1, intro_w - 2, intro_h - 2, tcod.BKGND_SET, tcod.CENTER, intro_lines[current_intro_line][0])
+        tcod.console_blit(intro_window, 0, 0, intro_w, intro_h, 0, intro_x, intro_y)
+        if current_intro_line > 0:
+          time.sleep(intro_lines[current_intro_line - 1][1])
+      current_intro_line += 1
         
     tcod.console_flush()
 
