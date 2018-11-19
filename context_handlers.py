@@ -268,7 +268,7 @@ def do_race(key, mouse):
   tcod.console_set_alignment(intro_window, tcod.CENTER)
   tcod.console_set_default_foreground(intro_window, tcod.sea)
 
-  lexicon = lex.country
+  lexicon = lex.jam_band
   title_and_song = build_song(lexicon)
   race = Race(g.season.teams, g.season.circuits[g.season.current_race], title_and_song[1], title_and_song[0])
 
@@ -325,12 +325,15 @@ def do_race(key, mouse):
             pressed_key_char = action.get('key_char')
             steer = action.get('steer')
             exit = action.get('exit')
-            powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
+            if not song_completed:
+              powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
+            else:
+              powerpct = 1
             team.vehicle.apply_power(powerpct)
             # debug
             #team.vehicle.apply_power(.9)
 
-            if pressed_key_char:
+            if pressed_key_char and not song_completed:
               correct = check_key_char_input(pressed_key_char, race.lyrics[verse], active_lyrics_character)
               if correct:
                 keypress_timer = 0.0
@@ -521,7 +524,7 @@ def do_team_creation(key, mouse):
   # Build competition
   p_color = player_team.color
   for ai in teams:
-    if ai.color == p_color:
+    if ai.color == p_color and not ai.isPlayer:
       # TODO: Make this better
       ai.set_color(tcod.peach)
 
