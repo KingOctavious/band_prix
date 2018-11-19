@@ -65,9 +65,13 @@ def handle_post_collision(vehicle):
 
   # Bounceback happens here
   if 'front' in bounce_directions:
-    vehicle.y -= 1
+    vehicle.distance_traveled += 2
+    if not vehicle.is_player:
+      vehicle.y -= 2
   if 'rear' in bounce_directions:
-    vehicle.y += 1
+    vehicle.distance_traveled -= 2
+    if not vehicle.is_player:
+      vehicle.y += 2
   if 'left' in bounce_directions:
     vehicle.x -= 1
   if 'right' in bounce_directions:

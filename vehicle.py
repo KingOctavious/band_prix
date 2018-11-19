@@ -13,6 +13,7 @@ class Vehicle:
     self.x = 0
     self.y = 0
 
+    self.is_player = False
     self.distance_traveled = 0
     self.speed = 0 # tiles per second
     self.max_speed = 30
