@@ -29,25 +29,6 @@ import vehicle_bodies
 ###############################################################################
 
 
-# get_race_intro
-#
-# Returns list of tuples containing the line of text that should be displayed,
-# coupled with the time (in seconds) to display each.
-def get_race_intro(song_title, lexicon, circuit):
-  announcement = [
-    ('Welcome to the {} Band Prix!'.format(circuit.name), 2),
-    ('Today you will be playing the hit {} song'.format(lexicon.name), 2),
-    ('Today you will be playing the hit {} song'.format(lexicon.name) + '\n' + '\n' + '\n' + '"{}"'.format(song_title), 2),
-    ('Get ready!', 2),
-    ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c*%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
-    ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
-    ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * * * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
-    #('',
-  ]
-
-  return announcement
-
-
 # build_race_stats
 #
 # returns list of Interval_Stat objects in proper order
@@ -129,6 +110,24 @@ def finish_race(race, team, time):
 
 def get_distance_traveled(team):
   return team.vehicle.distance_traveled
+
+
+# get_race_intro
+#
+# Returns list of tuples containing the line of text that should be displayed,
+# coupled with the time (in seconds) to display each.
+def get_race_intro(song_title, lexicon, circuit):
+  announcement = [
+    ('Welcome to the {} Band Prix!'.format(circuit.name), 2),
+    ('Today you will be playing the hit {} song'.format(lexicon.name), 2),
+    ('Today you will be playing the hit {} song'.format(lexicon.name) + '\n' + '\n' + '\n' + '"{}"'.format(song_title), 2),
+    ('Get ready!', 2),
+    ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c*%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
+    ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
+    ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * * * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
+  ]
+
+  return announcement
 
 
 # Returns dictionary in following format:
@@ -296,7 +295,7 @@ def do_race(key, mouse):
   barricade_locations = [] # holds tuples of x, y barricade locations
   intro_lines = get_race_intro(title_and_song[0], lexicon, race.circuit)
   current_intro_line = 0
-  first_frame = True;
+  first_frame = True
   time_elapsed_last_frame = 0
   race_start_time = tcod.sys_elapsed_seconds()
 
@@ -311,6 +310,7 @@ def do_race(key, mouse):
       if not first_frame:
         time_elapsed_last_frame = tcod.sys_get_last_frame_length()
       for team in teams:
+        team.ai_run_counters()
         # Apply collision physics if needed
         if team.vehicle in vehicles_collided:
           handle_post_collision(team.vehicle)
@@ -329,9 +329,9 @@ def do_race(key, mouse):
               powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
             else:
               powerpct = 1
-            team.vehicle.apply_power(powerpct)
+            #team.vehicle.apply_power(powerpct)
             # debug
-            #team.vehicle.apply_power(.9)
+            team.vehicle.apply_power(.65)
 
             if pressed_key_char and not song_completed:
               correct = check_key_char_input(pressed_key_char, race.lyrics[verse], active_lyrics_character)
@@ -345,6 +345,7 @@ def do_race(key, mouse):
                     song_completed = True
 
               else:
+                # TODO: mis-steer
                 pass
 
             if steer:
@@ -355,7 +356,11 @@ def do_race(key, mouse):
 
           # If team is not player
           else:
-            # debug
+            direction = team.ai_determine_direction()
+            if direction == td.LEFT:
+              team.vehicle.x += -1
+            elif direction == td.RIGHT:
+              team.vehicle.x += 1
             team.vehicle.apply_power(random.uniform(0.33, 1.00))
             #team.vehicle.apply_power(1)
 
@@ -368,7 +373,11 @@ def do_race(key, mouse):
           team.vehicle.speed = team.vehicle.max_speed
         elif team.vehicle.speed < 0:
           team.vehicle.speed = 0
-        team.vehicle.distance_traveled += time_elapsed_last_frame * team.vehicle.speed
+        distance_traveled_this_frame = time_elapsed_last_frame * team.vehicle.speed
+
+        team.ai_observe_curves(race.circuit.track_layout, int(team.vehicle.distance_traveled + distance_traveled_this_frame) - int(team.vehicle.distance_traveled)) # This HAS to come first
+        team.vehicle.distance_traveled += distance_traveled_this_frame
+        
 
 
       # Check for collisions

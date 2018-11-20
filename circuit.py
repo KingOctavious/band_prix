@@ -5,8 +5,9 @@ import visuals
 class Circuit:
   def __init__(self, name, track_layout):
     self.name = name
-
-    # track_shape stores tuples in form of (STRIPE_CHAR, track_offset)
+    # Simple list of Track_Direction per row
+    self.track_layout = track_layout
+    # List of tuples in form of (STRIPE_CHAR, track_offset)
     self.track_shape = []
 
     offset = 0

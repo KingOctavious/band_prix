@@ -1,4 +1,5 @@
 vehicle turning AI
+-- Need to correct alignment if they've been bumped by another car
 collisions should impact speed
 collisions aren't calculated correctly if they somehow only hit, for instance, 2nd full row of car (or maybe they are--not sure)
 DEPRECATE OLD ACCLEREATION GLOBALS?
