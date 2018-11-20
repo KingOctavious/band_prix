@@ -13,7 +13,7 @@ class Team:
     self.vehicle.is_player = isPlayer
 
     # For AI purposes. Holds 2-len lists in form of:
-    # (CURVE_DIRECTION, NUM_OF_FRAMES_AGO_THIS_CURVE_WAS_ENCOUNTERED)
+    # [CURVE_DIRECTION, NUM_OF_FRAMES_AGO_THIS_CURVE_WAS_ENCOUNTERED]
     self.curves_observed = []
     
     # For AI purposes. A queue of turns to take based on observed curves and
@@ -34,11 +34,6 @@ class Team:
   # `self.curves_observed` to handle soon.
   def ai_observe_curves(self, track_layout, rows_since_last_check):
     rows_since_last_check = int(rows_since_last_check)
-    # Num of rows ahead of current position that AI will check for curves
-    #ROWS_AHEAD_TO_CHECK = 3
-    # ` - 1` here because vehicles start behind row 0. So, if they have
-    # traveled 1 row, they have just then reached row 0, and so on.
-    #for direction in range(track[int(self.vehicle.distance_traveled)] - rows_since_last_check, track[int(self.vehicle.distance_traveled)]):
     for track_row in range(int(self.vehicle.distance_traveled) - rows_since_last_check, int(self.vehicle.distance_traveled)):
       # if self.vehicle.distance_traveled >= 100:
       #   n = 1

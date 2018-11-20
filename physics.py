@@ -1,4 +1,5 @@
 import global_data as g
+from track_direction import Track_Direction as td
 import visuals
 
 def apply_collision(vehicle_body, collision_points):
@@ -15,7 +16,9 @@ def apply_collision(vehicle_body, collision_points):
     vehicle_body.rows[veh_part_row] = new_body_row
 
 
-def handle_post_collision(vehicle):
+def handle_post_collision(team):
+  vehicle = team.vehicle
+
   # Figure out which side of the car got hit
   collided_sides = {
     'front': 0,
@@ -74,9 +77,14 @@ def handle_post_collision(vehicle):
       vehicle.y += 2
   if 'left' in bounce_directions:
     vehicle.x -= 1
+    # Pretend the team observed a turn here so that they will turn to 
+    # compensate for being out of the center of the lane.
+    team.curves_observed.append([td.RIGHT, 0])
   if 'right' in bounce_directions:
     vehicle.x += 1
-      
+    # Pretend the team observed a turn here so that they will turn to 
+    # compensate for being out of the center of the lane.    
+    team.curves_observed.append([td.LEFT, 0])
 
 def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holder):
   # Compare every vehicle position to every other vehicle position

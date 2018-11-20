@@ -313,7 +313,7 @@ def do_race(key, mouse):
         team.ai_run_counters()
         # Apply collision physics if needed
         if team.vehicle in vehicles_collided:
-          handle_post_collision(team.vehicle)
+          handle_post_collision(team)
 
         else:
           if team.vehicle.distance_traveled >= len(race.circuit.track_shape) and not team.finished_current_race:
