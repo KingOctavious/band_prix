@@ -90,5 +90,5 @@ for x in range(0, 4):
     track_layout_4.append(td.STRAIGHT)
 
   track_layout_5 = []
-  for x in range(0, 100):
+  for x in range(0, 50):
     track_layout_5.append(td.STRAIGHT)

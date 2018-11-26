@@ -1,5 +1,7 @@
 from circuit import Circuit
 
+import collections
+
 class Season:
   def __init__(self, year, circuits, teams):
     self.year = year
@@ -9,7 +11,7 @@ class Season:
     self.current_race = 0
     self.races = [] # Doesn't populate until after race happens
 
-    # Each team's points
+    # Each team's points (dict of team:points)
     self.standings = {}
     for team in teams:
       self.standings[team] = 0
@@ -20,6 +22,13 @@ class Season:
       self.results[circuit] = {}
       for team in teams:
         self.results[circuit][team] = None
+
+
+  # get_ordered_standings
+  #
+  # Returns ordered dict of team:points
+  def get_ordered_standings(self):
+    return collections.OrderedDict(sorted(self.standings.items(), key=lambda t: t[1], reverse=True))
 
 
   # get_overview
@@ -40,4 +49,8 @@ class Season:
     return overview
     
   
-    
+  # get_winner
+  #
+  # Returns winning team object of the provided race
+  def get_winner(self, race):
+    return race.places[1]

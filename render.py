@@ -93,12 +93,14 @@ def print_season_overview(con, panel_width, season):
   tcod.console_print_ex(con, int(panel_width / 2), 0, tcod.BKGND_SET, tcod.CENTER, str(season.year) + " SEASON")
   for x in range(0, len(overview)):
     race_name = overview[x][0]
-    winner_name = overview[x][1]
+    winner_name = "TBD"
+    if (x < season.current_race):
+      winner_name = season.get_winner(season.races[x]).name
     spaces = panel_width - len(race_name) - len(winner_name)
     full_line = race_name + (' ' * spaces) + winner_name
     if x == season.current_race:
       full_line = '%c{}%c'.format(full_line)%(tcod.COLCTRL_1, tcod.COLCTRL_STOP)
-    tcod.console_print_ex(con, 0, x * 2 + 2, tcod.BKGND_SET, tcod.LEFT, full_line)
+    tcod.console_print_ex(con, 0, x * 2 + 20, tcod.BKGND_SET, tcod.LEFT, full_line)
     
     
 

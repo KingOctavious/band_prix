@@ -244,6 +244,53 @@ def handle_text_input(key, response):
 
 # Handler functions
 ###############################################################################
+# do_post_race
+#
+# Store points for this race in the season data, and print post-race display
+def do_post_race(key, mouse):
+  finished_race = g.season.races[g.season.current_race]
+
+  full_panel = tcod.console_new(g.screen_width, g.screen_height)
+  tcod.console_set_alignment(full_panel, tcod.CENTER)
+  tcod.console_set_default_foreground(full_panel, tcod.sea)
+
+  tcod.console_clear(full_panel)
+
+  title = finished_race.circuit.name + ' Results'
+  tcod.console_print_frame(full_panel, 1, 1, g.screen_width - 2, g.screen_height - 2, False, tcod.BKGND_DEFAULT, title)
+
+  LINE_LENGTH = 50
+  header = 'Team' + (' ' * (LINE_LENGTH - 10)) + 'Points'
+  underline = '=' * LINE_LENGTH
+  tcod.console_print_ex(full_panel, 30, 20, tcod.BKGND_SET, tcod.LEFT, header)
+  tcod.console_print_ex(full_panel, 30, 21, tcod.BKGND_SET, tcod.LEFT, underline)
+  for place, team in finished_race.places.items():
+    # Record point data
+    points = g.POINTS[place]
+    g.season.standings[team] += points
+
+    # Print info
+    place_name = str(place) + '. ' + team.name
+    point_string = str(points)
+    space_count = LINE_LENGTH - (len(place_name) + len(point_string))
+    line = place_name + (' ' * space_count) + point_string
+
+    tcod.console_print_ex(full_panel, 30, 21 + place, tcod.BKGND_SET, tcod.LEFT, line)
+
+  tcod.console_blit(full_panel, 0, 0, g.screen_width, g.screen_height, 0, 0, 0)
+  tcod.console_flush()
+
+  # Wait for `tcod.Enter` to continue
+  confirm = False
+  while not confirm:
+    tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
+    action = handle_keys(key)
+    confirm = action.get('confirm')
+  
+  if confirm:
+    g.season.current_race += 1
+    g.context = Context.SEASON_OVERVIEW
+
 
 def do_race(key, mouse):
   main_viewport_height = 50
@@ -452,17 +499,30 @@ def do_season_overview(key, mouse):
   tcod.console_set_alignment(nearly_full_panel, tcod.LEFT)
   tcod.console_set_default_foreground(nearly_full_panel, tcod.sea)
 
+  # Get team points
+  LINE_LENGTH = 50
+  header = 'Team' + (' ' * (LINE_LENGTH - 10)) + 'Points'
+  underline = '=' * LINE_LENGTH
+  tcod.console_print_ex(nearly_full_panel, 30, 0, tcod.BKGND_SET, tcod.LEFT, header)
+  tcod.console_print_ex(nearly_full_panel, 30, 1, tcod.BKGND_SET, tcod.LEFT, underline)
+
+  place = 1
+  tcod.console_clear(nearly_full_panel)
+  for team, points in g.season.get_ordered_standings().items():
+    place_name = str(place) + '. ' + team.name
+    point_string = str(points)
+    space_count = LINE_LENGTH - (len(place_name) + len(point_string))
+    line = place_name + (' ' * space_count) + point_string
+    tcod.console_print_ex(nearly_full_panel, 30, 1 + place, tcod.BKGND_SET, tcod.LEFT, line)
+    place += 1
+
+  print_season_overview(nearly_full_panel, g.screen_width, g.season)
+  tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
+
   confirm = False
   selected_option = 1
   while not confirm:
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
-    # tcod.console_clear(full_panel)
-    # season_title_text = str(season.year)
-    # print_season_overview(full_panel, g.screen_width, season)
-
-    tcod.console_clear(nearly_full_panel)
-    print_season_overview(nearly_full_panel, g.screen_width, g.season)
-    tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
 
     spacing = 6
     options = [
@@ -514,43 +574,6 @@ def do_season_overview(key, mouse):
   if selection == 'go forward':
     # Move on
     g.context = Context.RACE
-
-
-# do_post_race
-#
-# Store points for this race in the season data, and print post-race display
-def do_post_race(key, mouse):
-  finished_race = g.season.races[g.season.current_race]
-
-  full_panel = tcod.console_new(g.screen_width, g.screen_height)
-  tcod.console_set_alignment(full_panel, tcod.CENTER)
-  tcod.console_set_default_foreground(full_panel, tcod.sea)
-
-  tcod.console_clear(full_panel)
-
-  title = finished_race.circuit.name + ' Results'
-  tcod.console_print_frame(full_panel, 1, 1, g.screen_width - 2, g.screen_height - 2, False, tcod.BKGND_DEFAULT, title)
-
-  LINE_LENGTH = 50
-  header = 'Team' + (' ' * (LINE_LENGTH - 10)) + 'Points'
-  underline = '=' * LINE_LENGTH
-  tcod.console_print_ex(full_panel, 30, 20, tcod.BKGND_SET, tcod.LEFT, header)
-  tcod.console_print_ex(full_panel, 30, 21, tcod.BKGND_SET, tcod.LEFT, underline)
-  for place, team in finished_race.places.items():
-    # Record point data
-    points = g.POINTS[place]
-    g.season.standings[team] += points
-
-    # Print info
-    place_name = str(place) + '. ' + team.name
-    point_string = str(points)
-    space_count = LINE_LENGTH - (len(place_name) + len(point_string))
-    line = place_name + (' ' * space_count) + point_string
-
-    tcod.console_print_ex(full_panel, 30, 21 + place, tcod.BKGND_SET, tcod.LEFT, line)
-
-  tcod.console_blit(full_panel, 0, 0, g.screen_width, g.screen_height, 0, 0, 0)
-  tcod.console_flush()
 
 
 def do_team_creation(key, mouse):
