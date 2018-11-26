@@ -11,7 +11,10 @@ def apply_collision(vehicle_body, collision_points):
       if index != veh_part[0]:
         new_body_row += current_body_row[index]
       else:
-        new_body_row += visuals.COLLISION_EFFECT
+        if current_body_row[index] == 'O' or current_body_row[index] == visuals.DAMAGED_TIRE: # Tires get a different effect
+          new_body_row += visuals.DAMAGED_TIRE
+        else:
+          new_body_row += visuals.COLLISION_EFFECT
 
     vehicle_body.rows[veh_part_row] = new_body_row
 
@@ -99,8 +102,8 @@ def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holde
 
     if index < team_count - 1:
       # Check for collisions with barricades
-      for y in range(base_y, base_y + base_h - 1):
-        for x in range(base_x, base_x + base_w - 1):
+      for y in range(base_y, base_y + base_h):
+        for x in range(base_x, base_x + base_w):
           if (x, y) in barricade_locations_holder:
             # COLLISION DETECTED!
             base_veh_collision_pts.append((x - base_x, y - base_y))

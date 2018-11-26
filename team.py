@@ -50,7 +50,7 @@ class Team:
   # Returns the direction to steer this frame.
   def ai_determine_direction(self):
     # % chance to turn immediately when curve is observed
-    BASE_REFLEX = 88
+    BASE_REFLEX = 10
     # Additional % point chance each frame to execute turns for observed curves
     REFLEX_INCREMENTER = 4
     # Remember `curves_observed` are direction:age tuples

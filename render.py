@@ -103,7 +103,7 @@ def print_season_overview(con, panel_width, season):
   header = 'Team' + (' ' * (LINE_LENGTH - 10)) + 'Points'
   underline = '=' * LINE_LENGTH
   tcod.console_print_ex(con, int(panel_width / 2), top_line + 0, tcod.BKGND_SET, tcod.CENTER, header)
-  tcod.console_print_ex(con, int(panel_width / 2) - int(LINE_LENGTH / 2), top_line + 1, tcod.BKGND_SET, tcod.LEFT, underline)
+  tcod.console_print_ex(con, int(panel_width / 2), top_line + 1, tcod.BKGND_SET, tcod.CENTER, underline)
 
   place = 1
   for team, points in season.get_ordered_standings().items():
@@ -111,7 +111,7 @@ def print_season_overview(con, panel_width, season):
     point_string = str(points)
     space_count = LINE_LENGTH - (len(place_name) + len(point_string))
     line = place_name + (' ' * space_count) + point_string
-    tcod.console_print_ex(con, int(panel_width / 2) - int(LINE_LENGTH / 2), 1 + top_line + place, tcod.BKGND_SET, tcod.LEFT, line)
+    tcod.console_print_ex(con, int(panel_width / 2), 1 + top_line + place, tcod.BKGND_SET, tcod.CENTER, line)
     place += 1
 
 
