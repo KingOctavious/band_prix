@@ -516,6 +516,9 @@ def do_season_overview(key, mouse):
     g.context = Context.RACE
 
 
+# do_post_race
+#
+# Store points for this race in the season data, and print post-race display
 def do_post_race(key, mouse):
   finished_race = g.season.races[g.season.current_race]
 
@@ -525,10 +528,26 @@ def do_post_race(key, mouse):
 
   tcod.console_clear(full_panel)
 
-  for place, team in finished_race.places.items():
-    line = str(place) + '. ' + team.name
-    tcod.console_print_ex(full_panel, 30, 29 + place, tcod.BKGND_SET, tcod.LEFT, line)
+  title = finished_race.circuit.name + ' Results'
+  tcod.console_print_frame(full_panel, 1, 1, g.screen_width - 2, g.screen_height - 2, False, tcod.BKGND_DEFAULT, title)
 
+  LINE_LENGTH = 50
+  header = 'Team' + (' ' * (LINE_LENGTH - 10)) + 'Points'
+  underline = '=' * LINE_LENGTH
+  tcod.console_print_ex(full_panel, 30, 20, tcod.BKGND_SET, tcod.LEFT, header)
+  tcod.console_print_ex(full_panel, 30, 21, tcod.BKGND_SET, tcod.LEFT, underline)
+  for place, team in finished_race.places.items():
+    # Record point data
+    points = g.POINTS[place]
+    g.season.standings[team] += points
+
+    # Print info
+    place_name = str(place) + '. ' + team.name
+    point_string = str(points)
+    space_count = LINE_LENGTH - (len(place_name) + len(point_string))
+    line = place_name + (' ' * space_count) + point_string
+
+    tcod.console_print_ex(full_panel, 30, 21 + place, tcod.BKGND_SET, tcod.LEFT, line)
 
   tcod.console_blit(full_panel, 0, 0, g.screen_width, g.screen_height, 0, 0, 0)
   tcod.console_flush()
