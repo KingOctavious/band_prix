@@ -321,7 +321,7 @@ def do_race(key, mouse):
             finish_race(race, team, total_time_elapsed - race_start_time)
 
           # Control player vehicle
-          if team.isPlayer:
+          if team.isPlayer and not team.finished_current_race:
             action = handle_keys(key)
             pressed_key_char = action.get('key_char')
             steer = action.get('steer')
@@ -356,7 +356,7 @@ def do_race(key, mouse):
               exit_game = True
 
           # If team is not player
-          else:
+          elif not team.finished_current_race:
             direction = team.ai_determine_direction()
             if direction == td.LEFT:
               team.vehicle.x += -1
@@ -364,6 +364,16 @@ def do_race(key, mouse):
               team.vehicle.x += 1
             team.vehicle.apply_power(random.uniform(0.33, 1.00))
             #team.vehicle.apply_power(1)
+
+          # If team has reached the finish line
+          else:
+            team.vehicle.apply_power(0)
+            # Don't have time to do proper checks to wait for all teams to
+            # finsh race. For now, just wait until the player team's vehicle
+            # has coasted to a stop, and then take everyone's place from that
+            # moment.
+            if team.isPlayer and team.vehicle.speed == 0:
+              race_finished = True
 
         # Apply acceleration, determine speed
         speed_to_add = time_elapsed_last_frame * team.vehicle.acceleration
@@ -420,6 +430,16 @@ def do_race(key, mouse):
       current_intro_line += 1
         
     tcod.console_flush()
+
+  # Race is finished
+  final_stats = build_race_stats(race)
+  place = 1
+  for stat in final_stats:
+    race.places[place] = stat.team
+    place += 1
+  g.season.races.append(race)
+
+  g.context = Context.POST_RACE
 
 
 def do_season_overview(key, mouse):
@@ -494,6 +514,24 @@ def do_season_overview(key, mouse):
   if selection == 'go forward':
     # Move on
     g.context = Context.RACE
+
+
+def do_post_race(key, mouse):
+  finished_race = g.season.races[g.season.current_race]
+
+  full_panel = tcod.console_new(g.screen_width, g.screen_height)
+  tcod.console_set_alignment(full_panel, tcod.CENTER)
+  tcod.console_set_default_foreground(full_panel, tcod.sea)
+
+  tcod.console_clear(full_panel)
+
+  for place, team in finished_race.places.items():
+    line = str(place) + '. ' + team.name
+    tcod.console_print_ex(full_panel, 30, 29 + place, tcod.BKGND_SET, tcod.LEFT, line)
+
+
+  tcod.console_blit(full_panel, 0, 0, g.screen_width, g.screen_height, 0, 0, 0)
+  tcod.console_flush()
 
 
 def do_team_creation(key, mouse):

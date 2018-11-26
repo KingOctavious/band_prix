@@ -63,6 +63,9 @@ while not tcod.console_is_window_closed() and not exit_game:
   elif g.context == Context.SEASON_OVERVIEW:
     do_season_overview(key, mouse)
 
+  elif g.context == Context.POST_RACE:
+    do_post_race(key, mouse)
+
 
 
 

@@ -26,6 +26,11 @@ class Race:
     # Dict of teams and finishing times at end of race
     self.finish_times = {}
 
+    # places
+    #
+    # Dict of place:team finalized at end of race.
+    self.places = {}
+
     # Set vhicles' starting positions
     for n in range(0, len(teams)):
       teams[n].vehicle.x = 1 + self.lane_padding + ((self.lane_size + 1) * n)

@@ -31,8 +31,9 @@ class Season:
       c_name = self.circuits[x].name
       winner_name = ''
       if x < self.current_race:
-        sorted_results = sorted(self.results[self.circuits[x]], key=self.results[self.circuits[x]].__getitem__, reverse=True)
-        winner_name = sorted_results[0][0].name
+        # sorted_results = sorted(self.results[self.circuits[x]], key=self.results[self.circuits[x]].__getitem__, reverse=True)
+        # winner_name = sorted_results[0][0].name
+        winner_name = self.races[x].places[1]
 
       overview.append((c_name + (' ' * 4), winner_name))
 
