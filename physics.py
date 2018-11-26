@@ -2,7 +2,8 @@ import global_data as g
 from track_direction import Track_Direction as td
 import visuals
 
-def apply_collision(vehicle_body, collision_points):
+def apply_collision(vehicle, collision_points):
+  vehicle_body = vehicle.body
   for veh_part in collision_points:
     veh_part_row = veh_part[1]
     current_body_row = vehicle_body.rows[veh_part_row]
@@ -11,10 +12,17 @@ def apply_collision(vehicle_body, collision_points):
       if index != veh_part[0]:
         new_body_row += current_body_row[index]
       else:
-        if current_body_row[index] == 'O' or current_body_row[index] == visuals.DAMAGED_TIRE: # Tires get a different effect
+        if current_body_row[index] == 'O': # Tires get a different effect
           new_body_row += visuals.DAMAGED_TIRE
+          vehicle.apply_damage(vehicle.hp_per_component)
+        elif current_body_row[index] == visuals.DAMAGED_TIRE: # Tires get a different effect
+          new_body_row += visuals.DAMAGED_TIRE
+        elif current_body_row[index] == visuals.DAMAGE_EFFECT:
+          new_body_row += visuals.COLLISION_EFFECT
         else:
           new_body_row += visuals.COLLISION_EFFECT
+          vehicle.apply_damage(vehicle.hp_per_component)
+
 
     vehicle_body.rows[veh_part_row] = new_body_row
 
@@ -100,7 +108,7 @@ def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holde
     base_h = base_vehicle.body.length
     base_veh_collision_pts = [] # Holds (x, y) tuples
 
-    if index < team_count - 1:
+    if index < team_count:
       # Check for collisions with barricades
       for y in range(base_y, base_y + base_h):
         for x in range(base_x, base_x + base_w):
@@ -108,7 +116,7 @@ def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holde
             # COLLISION DETECTED!
             base_veh_collision_pts.append((x - base_x, y - base_y))
             colliding_vehicles_holder.add(base_vehicle)
-            apply_collision(base_vehicle.body, base_veh_collision_pts)
+            apply_collision(base_vehicle, base_veh_collision_pts)
       # Done checking barricade collisions
 
       # We only have to check the opponents indexed higher than the currently
@@ -158,5 +166,5 @@ def handle_collisions(race, colliding_vehicles_holder, barricade_locations_holde
 
           # Once the actual collision locations are determined, we apply
           # the collision events to those parts of the vehicles.
-          apply_collision(base_vehicle.body, base_veh_collision_pts)
-          apply_collision(opp_vehicle.body, opp_veh_collision_pts)
+          apply_collision(base_vehicle, base_veh_collision_pts)
+          apply_collision(opp_vehicle, opp_veh_collision_pts)

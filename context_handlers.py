@@ -320,9 +320,7 @@ def do_race(key, mouse):
 
   # Reset stuff
   for x in range(0, len(race.teams)):
-    race.teams[x].vehicle.distance_traveled = 0
-    race.teams[x].vehicle.speed = 0
-    race.teams[x].finished_current_race = False
+    race.teams[x].vehicle.reset()
 
   teams = race.teams
   player_team_index = 0
@@ -396,7 +394,7 @@ def do_race(key, mouse):
                 # TODO: mis-steer
                 pass
 
-            if steer:
+            if steer and team.vehicle.speed > 0: # Can only steer if moving
               teams[player_team_index].vehicle.x += steer
             
             if exit:
