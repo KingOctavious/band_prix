@@ -124,7 +124,7 @@ country_exclamations = [
   'wee hoo',
   'woo doggy',
 	'yeah buddy',
-	'yeehaw'
+	'yeeha'
 ]
 
 metal_nouns = [
@@ -260,6 +260,13 @@ metal_verbs = [
 	'took'
 ]
 
+metal_exclamations = [
+  'oh yeah',
+  'that\'s right',
+  'whooo',
+  'yeah'
+]
+
 jam_band_nouns = [
 	['bard', 'bards'],
 	['bird', 'birds'],
@@ -388,6 +395,15 @@ jam_band_verbs = [
 	'welcomed'
 ]
 
+jam_band_exclamations = [
+  'blaze it',
+  'oh yeah',
+  'that\'s right',
+  'whooo',
+  'yeah'
+]
+
+
 cm_nouns = []
 for item in country_nouns:
   cm_nouns.append(item)
@@ -408,11 +424,11 @@ for item in metal_adjectives:
 
 
 
-country = Lexicon('country', country_nouns, country_verbs, country_adjectives)
-metal = Lexicon('heavy metal', metal_nouns, metal_verbs, metal_adjectives)
-jam_band = Lexicon('jam band', jam_band_nouns, jam_band_verbs, jam_band_adjectives)
+country = Lexicon('country', country_nouns, country_verbs, country_adjectives, country_exclamations)
+metal = Lexicon('heavy metal', metal_nouns, metal_verbs, metal_adjectives, metal_exclamations)
+jam_band = Lexicon('jam band', jam_band_nouns, jam_band_verbs, jam_band_adjectives, jam_band_exclamations)
 
-country_metal = Lexicon('country metal fusion', cm_nouns, cm_verbs, cm_adjectives)
+country_metal = Lexicon('country metal fusion', cm_nouns, cm_verbs, cm_adjectives, metal_exclamations)
 
 
 

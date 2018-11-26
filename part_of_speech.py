@@ -7,3 +7,4 @@ class Part_Of_Speech:
   ARTICLE_OR_POSS_PRONOUN = 5
   AND = 6
   CONJUNCTION = 7
+  EXCLAMATION = 8

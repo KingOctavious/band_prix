@@ -83,3 +83,8 @@ track_layout_3.append(td.STRAIGHT)
 for x in range(0, 4):
   track_layout_3.append(td.LEFT) 
   track_layout_3.append(td.STRAIGHT) 
+
+
+  track_layout_4 = []
+  for x in range(0, 800):
+    track_layout_4.append(td.STRAIGHT)

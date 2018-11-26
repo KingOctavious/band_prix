@@ -28,11 +28,12 @@ class Lexicon:
     'you'
   ]
 
-  def __init__(self, name, nouns, verbs, adjectives):
+  def __init__(self, name, nouns, verbs, adjectives, exclamations):
     self.name = name
     self.nouns = nouns
     self.verbs = verbs
     self.adjectives = adjectives
+    self.exclamations = exclamations
 
   def get_word(self, part_of_speech, index=-1):
     PART_OF_SPEECH_GROUPS = {
@@ -40,6 +41,7 @@ class Lexicon:
       pos.AND: ['and'],
       pos.ARTICLE_OR_POSS_PRONOUN: self.articles_and_possessive_pronouns,
       pos.CONJUNCTION: self.conjunctions,
+      pos.EXCLAMATION: self.exclamations,
       pos.NOUN: self.nouns,
       pos.PL_NOUN: self.nouns,
       pos.PRONOUN: self.pronouns,

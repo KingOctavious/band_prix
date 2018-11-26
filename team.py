@@ -35,11 +35,12 @@ class Team:
   def ai_observe_curves(self, track_layout, rows_since_last_check):
     rows_since_last_check = int(rows_since_last_check)
     for track_row in range(int(self.vehicle.distance_traveled) - rows_since_last_check, int(self.vehicle.distance_traveled)):
-      # if self.vehicle.distance_traveled >= 100:
-      #   n = 1
-      direction = track_layout[track_row]
-      if direction != td.STRAIGHT:
-        self.curves_observed.append([direction, 0])
+      if track_row < len(track_layout):
+        # if self.vehicle.distance_traveled >= 100:
+        #   n = 1
+        direction = track_layout[track_row]
+        if direction != td.STRAIGHT:
+          self.curves_observed.append([direction, 0])
 
 
   # ai_determine_direction

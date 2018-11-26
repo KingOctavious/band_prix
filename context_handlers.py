@@ -411,7 +411,7 @@ def do_race(key, mouse):
         tcod.console_hline(intro_window, 0, intro_h - 1, intro_w)
         tcod.console_vline(intro_window, 0, 0, intro_h)
         tcod.console_vline(intro_window, intro_w - 1, 0, intro_h)
-        tcod.console_print_rect_ex(intro_window, int(intro_w/2), 1, intro_w - 2, intro_h - 2, tcod.BKGND_SET, tcod.CENTER, intro_lines[current_intro_line][0])
+        tcod.console_print_rect_ex(intro_window, int(intro_w/2), 1, intro_w - 3, intro_h - 2, tcod.BKGND_SET, tcod.CENTER, intro_lines[current_intro_line][0])
         tcod.console_blit(intro_window, 0, 0, intro_w, intro_h, 0, intro_x, intro_y)
         if current_intro_line > 0:
           time.sleep(intro_lines[current_intro_line - 1][1])

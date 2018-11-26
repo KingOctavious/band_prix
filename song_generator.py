@@ -163,9 +163,7 @@ def build_song(lexicon):
 
   lyrics.insert(4, refrain)
   lyrics.insert(4, refrain)
-  lyrics.insert(4, ' ')
-  lyrics.insert(7, ' ')
-  lyrics.append(' ')
+  lyrics.insert(4, lexicon.get_word(pos.EXCLAMATION).title())
   lyrics.append(refrain)
   lyrics.append(refrain)
 
