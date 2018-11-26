@@ -84,13 +84,44 @@ def print_panel_side(panel, race_stats, panel_width):
 
 
 def print_season_overview(con, panel_width, season):
-  overview = season.get_overview()
+  tcod.console_clear(con)
+  LINE_LENGTH = 50
+  # Print team standings
+
+  top_line = 2
+  if (season.current_race >= len(season.circuits)):
+    winner = None
+    # Ugly way to get winner
+    for team, points in season.get_ordered_standings().items():
+      winner = team
+      break
+
+    win_text = '!!! ' + winner.name + ' WINS THE ' + str(season.year) + ' SEASON !!!'
+    tcod.console_print_ex(con, int(panel_width / 2), 2, tcod.BKGND_SET, tcod.CENTER, win_text)  
+    top_line = 6
+
+  header = 'Team' + (' ' * (LINE_LENGTH - 10)) + 'Points'
+  underline = '=' * LINE_LENGTH
+  tcod.console_print_ex(con, int(panel_width / 2), top_line + 0, tcod.BKGND_SET, tcod.CENTER, header)
+  tcod.console_print_ex(con, int(panel_width / 2) - int(LINE_LENGTH / 2), top_line + 1, tcod.BKGND_SET, tcod.LEFT, underline)
+
+  place = 1
+  for team, points in season.get_ordered_standings().items():
+    place_name = str(place) + '. ' + team.name
+    point_string = str(points)
+    space_count = LINE_LENGTH - (len(place_name) + len(point_string))
+    line = place_name + (' ' * space_count) + point_string
+    tcod.console_print_ex(con, int(panel_width / 2) - int(LINE_LENGTH / 2), 1 + top_line + place, tcod.BKGND_SET, tcod.LEFT, line)
+    place += 1
+
+
+  # Print inidividual races.
 
   # For the highlighted next race
-  #tcod.console_set_color_control(tcod.COLCTRL_1, tcod.darker_sea, tcod.lightest_yellow)
   tcod.console_set_color_control(tcod.COLCTRL_1, tcod.darker_sea, tcod.light_azure)
 
   tcod.console_print_ex(con, int(panel_width / 2), 0, tcod.BKGND_SET, tcod.CENTER, str(season.year) + " SEASON")
+  overview = season.get_overview()
   for x in range(0, len(overview)):
     race_name = overview[x][0]
     winner_name = "TBD"
@@ -100,7 +131,7 @@ def print_season_overview(con, panel_width, season):
     full_line = race_name + (' ' * spaces) + winner_name
     if x == season.current_race:
       full_line = '%c{}%c'.format(full_line)%(tcod.COLCTRL_1, tcod.COLCTRL_STOP)
-    tcod.console_print_ex(con, 0, x * 2 + 20, tcod.BKGND_SET, tcod.LEFT, full_line)
+    tcod.console_print_ex(con, 0, x * 2 + top_line + 10, tcod.BKGND_SET, tcod.LEFT, full_line)
     
     
 

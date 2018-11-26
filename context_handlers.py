@@ -499,23 +499,6 @@ def do_season_overview(key, mouse):
   tcod.console_set_alignment(nearly_full_panel, tcod.LEFT)
   tcod.console_set_default_foreground(nearly_full_panel, tcod.sea)
 
-  # Get team points
-  LINE_LENGTH = 50
-  header = 'Team' + (' ' * (LINE_LENGTH - 10)) + 'Points'
-  underline = '=' * LINE_LENGTH
-  tcod.console_print_ex(nearly_full_panel, 30, 0, tcod.BKGND_SET, tcod.LEFT, header)
-  tcod.console_print_ex(nearly_full_panel, 30, 1, tcod.BKGND_SET, tcod.LEFT, underline)
-
-  place = 1
-  tcod.console_clear(nearly_full_panel)
-  for team, points in g.season.get_ordered_standings().items():
-    place_name = str(place) + '. ' + team.name
-    point_string = str(points)
-    space_count = LINE_LENGTH - (len(place_name) + len(point_string))
-    line = place_name + (' ' * space_count) + point_string
-    tcod.console_print_ex(nearly_full_panel, 30, 1 + place, tcod.BKGND_SET, tcod.LEFT, line)
-    place += 1
-
   print_season_overview(nearly_full_panel, g.screen_width, g.season)
   tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
 
