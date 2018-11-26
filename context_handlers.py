@@ -300,8 +300,9 @@ def do_race(key, mouse):
   race_start_time = tcod.sys_elapsed_seconds()
 
   while not race_finished:
-    tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
-    active_key_char = lyrics[verse][active_lyrics_character]
+    tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
+    if not song_completed:       
+      active_key_char = lyrics[verse][active_lyrics_character]
     keypress_timer += tcod.sys_get_last_frame_length()
     total_time_elapsed = tcod.sys_elapsed_seconds()
         
@@ -392,7 +393,8 @@ def do_race(key, mouse):
     tcod.console_blit(main_viewport, 0, 0, g.screen_width, g.screen_height, 0, 0, 0,)
 
     tcod.console_clear(bottom_viewport)
-    print_lyrics(bottom_viewport, race.lyrics[verse], active_lyrics_character)
+    if not song_completed:
+      print_lyrics(bottom_viewport, race.lyrics[verse], active_lyrics_character)
     tcod.console_blit(bottom_viewport, 0, 0, main_viewport_width, bottom_viewport_height, 0, 0, bottom_viewport_y)
 
     tcod.console_clear(side_viewport)

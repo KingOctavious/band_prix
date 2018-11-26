@@ -1,6 +1,6 @@
 from track_direction import Track_Direction as td
 
-BARRICADE = 'O'
+BARRICADE = '0'
 COLLISION_EFFECT = '*'
 DAMAGE_EFFECT = 'x'
 FINISH_LINE = '#'
