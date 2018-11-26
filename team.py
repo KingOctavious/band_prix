@@ -21,6 +21,13 @@ class Team:
     self.turns_to_take = []
 
 
+  def reset(self):
+    self.finished_current_race = False
+    self.vehicle.reset()
+    self.curves_observed = []
+    self.turns_to_take = []
+
+
   def set_color(self, color):
     self.color = color
     self.vehicle.color = color

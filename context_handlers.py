@@ -320,7 +320,7 @@ def do_race(key, mouse):
 
   # Reset stuff
   for x in range(0, len(race.teams)):
-    race.teams[x].vehicle.reset()
+    race.teams[x].reset()
 
   teams = race.teams
   player_team_index = 0

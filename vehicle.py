@@ -33,10 +33,13 @@ class Vehicle:
     if self.condition < 1:
       self.condition = 1
 
+
   def apply_power(self, power_percentage):
+    modifier_from_damage = self.condition / 100
+
     if power_percentage > 0:
-      self.current_max_speed_from_power = round(power_percentage * self.max_speed)
-      self.acceleration = round(power_percentage * self.max_acceleration)
+      self.current_max_speed_from_power = round(power_percentage * self.max_speed * modifier_from_damage)
+      self.acceleration = round(power_percentage * self.max_acceleration * modifier_from_damage)
 
     else:
       self.current_max_speed_from_power -= 0.1
@@ -58,3 +61,4 @@ class Vehicle:
     self.current_max_speed_from_power = 0
     self.acceleration = 0
     self.condition = 100
+    self.distance_traveled = 0

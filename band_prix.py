@@ -53,16 +53,12 @@ exit_game = False
 ### GAME LOOP #################################################################
 
 while not tcod.console_is_window_closed() and not exit_game:
-
   if g.context == Context.RACE:
     do_race(key, mouse)
-
   elif g.context == Context.TEAM_CREATION: 
     do_team_creation(key, mouse)
-
   elif g.context == Context.SEASON_OVERVIEW:
     do_season_overview(key, mouse)
-
   elif g.context == Context.POST_RACE:
     do_post_race(key, mouse)
 

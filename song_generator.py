@@ -151,7 +151,7 @@ def build_song(lexicon):
   refrain = refrain[0].upper() + refrain[1:]
 
   lyrics = []
-  LINE_LENGTH_MAX = 56
+  LINE_LENGTH_MAX = 46
   for x in range(0, 8):
     line_length = 999999
     while line_length > LINE_LENGTH_MAX:
