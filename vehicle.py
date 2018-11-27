@@ -10,7 +10,7 @@ class Vehicle:
     self.color = color
     
     # Store this so we can fix the body between races
-    self.original_body = Vehicle_Body(body.rows) # Do it like this to force copy
+    self.original_body = Vehicle_Body(body.rows)
     
     # Positions based on coordinates of vehicle's top left tile
     self.x = 0
@@ -55,7 +55,7 @@ class Vehicle:
 
   
   def reset(self):
-    self.body = self.original_body
+    self.body = Vehicle_Body(self.original_body.rows)
     self.distance_traveled = 0
     self.speed = 0
     self.current_max_speed_from_power = 0

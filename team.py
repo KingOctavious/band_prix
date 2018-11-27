@@ -16,6 +16,11 @@ class Team:
     # [CURVE_DIRECTION, NUM_OF_FRAMES_AGO_THIS_CURVE_WAS_ENCOUNTERED]
     self.curves_observed = []
     
+    # For AI purposes. Counter goes up by a factor of X when AI encounters
+    # turns. While counter is > 0, power application is reduced. This is to
+    # simulate the difficulty of typing and steering at the same time.
+    self.power_recovery_counter = 0
+
     # For AI purposes. A queue of turns to take based on observed curves and
     # `ai_determine_direction`.
     self.turns_to_take = []
@@ -26,6 +31,7 @@ class Team:
     self.vehicle.reset()
     self.curves_observed = []
     self.turns_to_take = []
+    self.power_recovery_counter = 0
 
 
   def set_color(self, color):
@@ -34,6 +40,14 @@ class Team:
 
 
   # AI functions ##############################################################
+
+  def ai_apply_power(self):
+    powerpct = 0
+    if self.power_recovery_counter <= 0:
+      powerpct = random.uniform(0.33, 1.00)
+    else:
+      powerpct = random.uniform(0.00, 0.15)
+    self.vehicle.apply_power(powerpct)
 
   # ai_observe_curves
   #
@@ -47,7 +61,9 @@ class Team:
         #   n = 1
         direction = track_layout[track_row]
         if direction != td.STRAIGHT:
-          self.curves_observed.append([direction, 0])
+          self.curves_observed.append([direction, 0])         
+          POWER_RECOV_MULTIPLIER = 20
+          self.power_recovery_counter += POWER_RECOV_MULTIPLIER
 
 
   # ai_determine_direction
@@ -113,4 +129,5 @@ class Team:
   def ai_run_counters(self):
     for curve_age in self.curves_observed:
       curve_age[1] += 1
+    self.power_recovery_counter -= 1
     

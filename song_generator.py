@@ -21,7 +21,7 @@ def build_predicate_structure():
     preds = 2
 
   for x in range(0, preds):
-    chosen_structure = structure_options[round(random.uniform(0, len(structure_options) - 1))]
+    chosen_structure = structure_options[random.randint(0, len(structure_options) - 1)]
     for item in chosen_structure:
       pred_structure.append(item)
 
@@ -76,7 +76,7 @@ def build_subject_structure():
         [pos.ADJECTIVE, pos.PL_NOUN]
       ]
 
-    chosen_structure = structure_options[round(random.uniform(0, len(structure_options) - 1))]
+    chosen_structure = structure_options[random.randint(0, len(structure_options) - 1)]
     for item in chosen_structure:
       subject_structure.append(item)
 
@@ -157,7 +157,7 @@ def build_song(lexicon):
     while line_length > LINE_LENGTH_MAX:
       line = ''
       # Chance for conjunction every other line
-      if round(random.uniform(0, 1)) == 1 and x % 2 == 1:
+      if random.randint(0, 1) == 1 and x % 2 == 1:
         line += lexicon.get_word(pos.CONJUNCTION) + ' '
       line += build_line(lexicon, theme_noun_group)
       line_length = len(line)
@@ -177,6 +177,6 @@ def build_song(lexicon):
     lyrics[0]
   ]
 
-  title = title_options[round(random.uniform(0, len(title_options) - 1))].title()
+  title = title_options[random.randint(0, len(title_options) - 1)].title()
 
   return (title, lyrics)

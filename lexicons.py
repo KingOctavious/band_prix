@@ -303,7 +303,6 @@ jam_band_nouns = [
 	['rainbow', 'rainbows'],
 	['room', 'rooms'],
 	['sage', 'sages'],
-	['scroll', 'scrolls'],
 	['smoke'],
 	['star', 'stars'],
 	['sun', 'suns'],

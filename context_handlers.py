@@ -12,6 +12,7 @@ import random
 from render import *
 from song_generator import build_song
 from team import Team
+import teams as t
 import time
 from vehicle import Vehicle
 import vehicle_bodies
@@ -119,9 +120,9 @@ def get_distance_traveled(team):
 def get_race_intro(song_title, lexicon, circuit):
   announcement = [
     ('Welcome to the {} Band Prix!'.format(circuit.name), 2),
-    ('Today you will be playing the hit {} song'.format(lexicon.name), 2),
-    ('Today you will be playing the hit {} song'.format(lexicon.name) + '\n' + '\n' + '\n' + '"{}"'.format(song_title), 2),
-    ('Get ready!', 2),
+    ('Today you will be playing the hit {} song'.format(lexicon.name), 1),
+    ('Today you will be playing the hit {} song'.format(lexicon.name) + '\n' + '\n' + '\n' + '"{}"'.format(song_title), 2.5),
+    ('Get ready!', 1),
     ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c*%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
     ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
     ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * * * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
@@ -314,7 +315,7 @@ def do_race(key, mouse):
   tcod.console_set_alignment(intro_window, tcod.CENTER)
   tcod.console_set_default_foreground(intro_window, tcod.sea)
 
-  lexicon = lex.jam_band
+  lexicon = lex.genres_lexicons[random.randint(0, len(lex.genres_lexicons) - 1)][0]
   title_and_song = build_song(lexicon)
   race = Race(g.season.teams, g.season.circuits[g.season.current_race], title_and_song[1], title_and_song[0])
 
@@ -375,9 +376,9 @@ def do_race(key, mouse):
               powerpct = g.get_powerpct_from_keyspeed(keypress_timer)
             else:
               powerpct = 1
-            #team.vehicle.apply_power(powerpct)
+            team.vehicle.apply_power(powerpct)
             # debug
-            team.vehicle.apply_power(.65)
+            #team.vehicle.apply_power(.65)
 
             if pressed_key_char and not song_completed:
               correct = check_key_char_input(pressed_key_char, race.lyrics[verse], active_lyrics_character)
@@ -407,8 +408,7 @@ def do_race(key, mouse):
               team.vehicle.x += -1
             elif direction == td.RIGHT:
               team.vehicle.x += 1
-            team.vehicle.apply_power(random.uniform(0.33, 1.00))
-            #team.vehicle.apply_power(1)
+            team.ai_apply_power()
 
           # If team has reached the finish line
           else:
@@ -585,13 +585,7 @@ def do_team_creation(key, mouse):
 
   responses = handle_questions(full_panel, key, mouse, questions_options)
   player_team = Team(responses[0], responses[1], Vehicle(vehicle_bodies.v_bod_1), True)
-  teams = [
-    Team('Kasvot Vaxt', tcod.azure, Vehicle(vehicle_bodies.v_bod_1)),
-    Team('ViscDuds', tcod.azure, Vehicle(vehicle_bodies.v_bod_1)),
-    player_team,
-    Team('The Billiards', tcod.green, Vehicle(vehicle_bodies.v_bod_1)),
-    Team('Strange Dan Gustafvist', tcod.yellow, Vehicle(vehicle_bodies.v_bod_1)),
-  ]
+  teams = t.pick_season_teams(player_team)
 
   # Build competition
   p_color = player_team.color
