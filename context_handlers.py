@@ -163,7 +163,7 @@ def handle_option_selection(key, options):
 # the responses in list form. Options should be provided as lists of
 # value:string tuples. If the question requires a text-input response,
 # provide an empty list argument for the options.
-def handle_questions(con, key, mouse, questions_options):
+def handle_questions(con, key, mouse, questions_options, con_y_pos=0):
   static_text_to_print = []
   responses = []
   for question, options in questions_options.items():
@@ -171,44 +171,44 @@ def handle_questions(con, key, mouse, questions_options):
     confirmed = False
     static_text_to_print.append(question)
 
-    while not confirmed:
-      tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
-      tcod.console_clear(con)
-      tcod.console_set_default_foreground(con, tcod.sea)
-      tcod.console_set_default_background(con, tcod.black)
+    #while not confirmed:
+    tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
+    tcod.console_clear(con)
+    tcod.console_set_default_foreground(con, tcod.sea)
+    tcod.console_set_default_background(con, tcod.black)
 
-      # For open text input
-      if len(options) == 0:     
-        response_data = handle_text_input(key, response)
-        response = response_data['value']
-        response_line = '> ' + response_data['string']
-        confirmed = response_data['confirmed']
-        tcod.console_print_rect_ex(con, 0, len(static_text_to_print), g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, response_line)
-      # For input with discreet options
-      else:
-        response_data = handle_option_selection(key, options)
-        response = response_data['value']
-        response_text = response_data['string']
-        response_line = '> ' + response_text
-        confirmed = response_data['confirmed']
-        # Display options
-        for x in range(0, len(options)):
-          option_text = g.ALPHABET[x] + '. ' + options[x][1]
-          tcod.console_print_rect_ex(con, 0, len(static_text_to_print) + x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
+    # For open text input
+    if len(options) == 0:     
+      response_data = handle_text_input(key, response)
+      response = response_data['value']
+      response_line = '> ' + response_data['string']
+      confirmed = response_data['confirmed']
+      tcod.console_print_rect_ex(con, 0, len(static_text_to_print), g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, response_line)
+    # For input with discreet options
+    else:
+      response_data = handle_option_selection(key, options)
+      response = response_data['value']
+      response_text = response_data['string']
+      response_line = '> ' + response_text
+      confirmed = response_data['confirmed']
+      # Display options
+      for x in range(0, len(options)):
+        option_text = g.ALPHABET[x] + '. ' + options[x][1]
+        tcod.console_print_rect_ex(con, 0, len(static_text_to_print) + x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
 
-      # Once we get a response, do this stuff:
-      if confirmed:
-        if len(options) > 0:
-          # Clear to remove list of options
-          tcod.console_clear(con)
-        static_text_to_print.append(response_line)
-        responses.append(response)
+    # Once we get a response, do this stuff:
+    if confirmed:
+      if len(options) > 0:
+        # Clear to remove list of options
+        tcod.console_clear(con)
+      static_text_to_print.append(response_line)
+      responses.append(response)
 
-      # Do this stuff every time no matter what
-      for x in range(0, len(static_text_to_print)):
-        tcod.console_print_rect_ex(con, 0, x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
-      tcod.console_blit(con, 0, 0, g.screen_height, g.screen_height, 0, 0, 0)
-      tcod.console_flush()
+    # Do this stuff every time no matter what
+    for x in range(0, len(static_text_to_print)):
+      tcod.console_print_rect_ex(con, 0, x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
+    tcod.console_blit(con, 0, 0, g.screen_height, g.screen_height, 0, 0, con_y_pos)
+    tcod.console_flush()
 
 
   time.sleep(0.2)
@@ -247,9 +247,40 @@ def handle_text_input(key, response):
 ###############################################################################
 
 def do_main_menu(key, mouse):
-  full_panel = tcod.console_new(g.screen_width, g.screen_height)
-  tcod.console_set_alignment(full_panel, tcod.CENTER)
-  tcod.console_set_default_foreground(full_panel, tcod.sea)
+  title_panel_h = 28
+  title_panel = tcod.console_new(g.screen_width, title_panel_h)
+  tcod.console_set_alignment(title_panel, tcod.LEFT)
+  tcod.console_set_default_foreground(title_panel, tcod.blue)
+  for x in range(0, len(g.TITLE_GRAPHIC_TOP)):
+    tcod.console_print_ex(title_panel, 1, x + 1, tcod.BKGND_SET, tcod.LEFT, g.TITLE_GRAPHIC_TOP[x][0])
+  tcod.console_blit(title_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
+
+  for x in range(0, len(g.TITLE_GRAPHIC_BOTTOM)):
+    tcod.console_print_ex(title_panel, 1, x + 4 + len(g.TITLE_GRAPHIC_TOP), tcod.BKGND_SET, tcod.LEFT, g.TITLE_GRAPHIC_BOTTOM[x][0])
+  tcod.console_blit(title_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
+
+  selection_panel = tcod.console_new(g.screen_width, g.screen_height - title_panel_h)
+  tcod.console_set_alignment(selection_panel, tcod.LEFT)
+  tcod.console_set_default_foreground(selection_panel, tcod.sea)
+
+  title_colors = [
+    tcod.azure,
+    #tcod.blue,
+    tcod.cyan,
+    tcod.fuchsia,
+    tcod.light_gray,
+    #tcod.light_pink,
+    tcod.dark_purple,
+    tcod.dark_violet,
+    #tcod.orange,
+    #tcod.pink,
+    tcod.purple,
+    #tcod.red,
+    tcod.sea,
+    tcod.turquoise,
+    #tcod.white,
+    #tcod.yellow
+  ]
 
   questions_options = {
     '': [
@@ -260,16 +291,23 @@ def do_main_menu(key, mouse):
 
   waiting_for_response = True
   while waiting_for_response:
+    for y in range(1, 1 + len(g.TITLE_GRAPHIC_TOP)):
+      color_index = random.randint(0, len(title_colors) - 1)
+      for x in range(0, g.screen_width):
+        tcod.console_set_char_foreground(title_panel, x, y, title_colors[color_index])
+    tcod.console_blit(title_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
+
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
-    selection = handle_questions(full_panel, key, mouse, questions_options)
-    if selection[0] == 'start':
-      print('start')
-      g.context = Context.TEAM_CREATION
-      waiting_for_response = False
-    elif selection[0] == 'exit':
-      print('exit')
-      g.context = Context.EXIT
-      waiting_for_response = False
+    selection = handle_questions(selection_panel, key, mouse, questions_options, 24)
+    if len(selection) > 0:
+      if selection[0] == 'start':
+        print('start')
+        g.context = Context.TEAM_CREATION
+        waiting_for_response = False
+      elif selection[0] == 'exit':
+        print('exit')
+        g.context = Context.EXIT
+        waiting_for_response = False
 
 
 
