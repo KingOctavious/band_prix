@@ -151,17 +151,13 @@ def build_song(lexicon):
   refrain = refrain[0].upper() + refrain[1:]
 
   lyrics = []
-  LINE_LENGTH_MAX = 46
   for x in range(0, 8):
-    line_length = 999999
-    while line_length > LINE_LENGTH_MAX:
-      line = ''
-      # Chance for conjunction every other line
-      if random.randint(0, 1) == 1 and x % 2 == 1:
-        line += lexicon.get_word(pos.CONJUNCTION) + ' '
-      line += build_line(lexicon, theme_noun_group)
-      line_length = len(line)
-
+    line = ''
+    # Chance for conjunction every other line
+    if random.randint(0, 1) == 1 and x % 2 == 1:
+      line += lexicon.get_word(pos.CONJUNCTION) + ' '
+    line += build_line(lexicon, theme_noun_group)
+    line_length = len(line)
     line = line[0].upper() + line[1:]
     lyrics.append(line)
 

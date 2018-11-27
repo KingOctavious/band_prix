@@ -245,6 +245,36 @@ def handle_text_input(key, response):
 
 # Handler functions
 ###############################################################################
+
+def do_main_menu(key, mouse):
+  full_panel = tcod.console_new(g.screen_width, g.screen_height)
+  tcod.console_set_alignment(full_panel, tcod.CENTER)
+  tcod.console_set_default_foreground(full_panel, tcod.sea)
+
+  questions_options = {
+    '': [
+      ('start', 'Start'),
+      ('exit', 'Exit game')
+    ]
+  }
+
+  waiting_for_response = True
+  while waiting_for_response:
+    tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
+    selection = handle_questions(full_panel, key, mouse, questions_options)
+    if selection[0] == 'start':
+      print('start')
+      g.context = Context.TEAM_CREATION
+      waiting_for_response = False
+    elif selection[0] == 'exit':
+      print('exit')
+      g.context = Context.EXIT
+      waiting_for_response = False
+
+
+
+
+
 # do_post_race
 #
 # Store points for this race in the season data, and print post-race display
@@ -507,7 +537,7 @@ def do_season_overview(key, mouse):
 
     spacing = 6
     options = [
-      ('exit', 'Let\'s go home'),
+      ('exit', 'I quit'),
       ('go forward', 'Let\'s rock')
     ]
     selection = options[0][0]
@@ -551,9 +581,8 @@ def do_season_overview(key, mouse):
     tcod.console_flush()
 
   if selection == 'exit':
-    pass
+    g.context = Context.MAIN_MENU
   if selection == 'go forward':
-    # Move on
     g.context = Context.RACE
 
 

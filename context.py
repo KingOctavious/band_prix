@@ -3,3 +3,5 @@ class Context:
   TEAM_CREATION = 1
   SEASON_OVERVIEW = 2
   POST_RACE = 3
+  MAIN_MENU = 4
+  EXIT = 5

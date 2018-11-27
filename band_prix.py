@@ -27,7 +27,7 @@ import visuals
 FPS_CAP = 60
 #frame_render_time = 1 / FPS_CAP
 fullscreen = False
-GAME_TITLE = 'Band Prix'
+GAME_TITLE = 'Band Prix 2094'
 #font_path = 'arial10x10.png'
 #font_path = 'arial12x12.png'
 #font_path = 'consolas10x10_gs_tc.png'
@@ -48,12 +48,15 @@ tcod.sys_set_fps(FPS_CAP)
 key = tcod.Key()
 mouse = tcod.Mouse()
 exit_game = False
+g.context = Context.MAIN_MENU
 
 
 ### GAME LOOP #################################################################
 
 while not tcod.console_is_window_closed() and not exit_game:
-  if g.context == Context.RACE:
+  if g.context == Context.MAIN_MENU:
+    do_main_menu(key, mouse)
+  elif g.context == Context.RACE:
     do_race(key, mouse)
   elif g.context == Context.TEAM_CREATION: 
     do_team_creation(key, mouse)
@@ -61,6 +64,8 @@ while not tcod.console_is_window_closed() and not exit_game:
     do_season_overview(key, mouse)
   elif g.context == Context.POST_RACE:
     do_post_race(key, mouse)
+  elif g.context == Context.EXIT:
+    exit_game = True
 
 
 
