@@ -174,9 +174,8 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
       
       # Print lane stripes
       else:
-        lane = int(col / (lane_size + 1))
-        col_within_lane = col - (lane * (lane_size + 1))
-
+        lane = int(col / (lane_size + 1)) - int(left_edge / lane_size)
+        col_within_lane = col - (lane * (lane_size + 1)) - ((lane_size + 1) * int(left_edge / lane_size))
         if col_within_lane == 0:
           # Before start line
           if track_row < 0:
@@ -191,7 +190,13 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
           # Print the lane stripe only every third time, except always print it
           # if it is a curve.
           if track_row % 3 == 0 or lane_stripe != visuals.STRIPE_CHARS[td.STRAIGHT]:
-            tcod.console_put_char(con, col + offset, y, lane_stripe, tcod.BKGND_NONE)
+            # Slightly hacky here because in situations where the left edge is
+            # farther over than the width of a full lane, lanes were be printed
+            # offset to the right by one full lane size.
+            if int(left_edge / lane_size) > 0 and lane != 0:
+              tcod.console_put_char(con, col + offset - (lane_size + 1), y, lane_stripe, tcod.BKGND_NONE)
+            else:  
+              tcod.console_put_char(con, col + offset, y, lane_stripe, tcod.BKGND_NONE)
 
 
 
@@ -207,7 +212,6 @@ def print_vehicles(con, race, player_y, distance_traveled_by_player):
         y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, int(y), race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, int(y), race.teams[n].vehicle.color)
-        #print(race.teams[n].vehicle.body.color)
 
 
 def print_race(con, race, player_y, distance_traveled_by_player, barricade_locations_holder):
