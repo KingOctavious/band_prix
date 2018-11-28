@@ -171,44 +171,44 @@ def handle_questions(con, key, mouse, questions_options, con_y_pos=0):
     confirmed = False
     static_text_to_print.append(question)
 
-    #while not confirmed:
-    tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
-    tcod.console_clear(con)
-    tcod.console_set_default_foreground(con, tcod.sea)
-    tcod.console_set_default_background(con, tcod.black)
+    while not confirmed:
+      tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)       
+      tcod.console_clear(con)
+      tcod.console_set_default_foreground(con, tcod.sea)
+      tcod.console_set_default_background(con, tcod.black)
 
-    # For open text input
-    if len(options) == 0:     
-      response_data = handle_text_input(key, response)
-      response = response_data['value']
-      response_line = '> ' + response_data['string']
-      confirmed = response_data['confirmed']
-      tcod.console_print_rect_ex(con, 0, len(static_text_to_print), g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, response_line)
-    # For input with discreet options
-    else:
-      response_data = handle_option_selection(key, options)
-      response = response_data['value']
-      response_text = response_data['string']
-      response_line = '> ' + response_text
-      confirmed = response_data['confirmed']
-      # Display options
-      for x in range(0, len(options)):
-        option_text = g.ALPHABET[x] + '. ' + options[x][1]
-        tcod.console_print_rect_ex(con, 0, len(static_text_to_print) + x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
+      # For open text input
+      if len(options) == 0:     
+        response_data = handle_text_input(key, response)
+        response = response_data['value']
+        response_line = '> ' + response_data['string']
+        confirmed = response_data['confirmed']
+        tcod.console_print_rect_ex(con, 0, len(static_text_to_print), g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, response_line)
+      # For input with discreet options
+      else:
+        response_data = handle_option_selection(key, options)
+        response = response_data['value']
+        response_text = response_data['string']
+        response_line = '> ' + response_text
+        confirmed = response_data['confirmed']
+        # Display options
+        for x in range(0, len(options)):
+          option_text = g.ALPHABET[x] + '. ' + options[x][1]
+          tcod.console_print_rect_ex(con, 0, len(static_text_to_print) + x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, option_text)
 
-    # Once we get a response, do this stuff:
-    if confirmed:
-      if len(options) > 0:
-        # Clear to remove list of options
-        tcod.console_clear(con)
-      static_text_to_print.append(response_line)
-      responses.append(response)
+      # Once we get a response, do this stuff:
+      if confirmed:
+        if len(options) > 0:
+          # Clear to remove list of options
+          tcod.console_clear(con)
+        static_text_to_print.append(response_line)
+        responses.append(response)
 
-    # Do this stuff every time no matter what
-    for x in range(0, len(static_text_to_print)):
-      tcod.console_print_rect_ex(con, 0, x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
-    tcod.console_blit(con, 0, 0, g.screen_height, g.screen_height, 0, 0, con_y_pos)
-    tcod.console_flush()
+      # Do this stuff every time no matter what
+      for x in range(0, len(static_text_to_print)):
+        tcod.console_print_rect_ex(con, 0, x, g.screen_width, g.screen_height, tcod.BKGND_SET, tcod.LEFT, static_text_to_print[x])
+      tcod.console_blit(con, 0, 0, g.screen_height, g.screen_height, 0, 0, con_y_pos)
+      tcod.console_flush()
 
 
   time.sleep(0.2)
@@ -253,11 +253,9 @@ def do_main_menu(key, mouse):
   tcod.console_set_default_foreground(title_panel, tcod.blue)
   for x in range(0, len(g.TITLE_GRAPHIC_TOP)):
     tcod.console_print_ex(title_panel, 1, x + 1, tcod.BKGND_SET, tcod.LEFT, g.TITLE_GRAPHIC_TOP[x][0])
-  tcod.console_blit(title_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
 
   for x in range(0, len(g.TITLE_GRAPHIC_BOTTOM)):
     tcod.console_print_ex(title_panel, 1, x + 4 + len(g.TITLE_GRAPHIC_TOP), tcod.BKGND_SET, tcod.LEFT, g.TITLE_GRAPHIC_BOTTOM[x][0])
-  tcod.console_blit(title_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
 
   selection_panel = tcod.console_new(g.screen_width, g.screen_height - title_panel_h)
   tcod.console_set_alignment(selection_panel, tcod.LEFT)
@@ -295,6 +293,7 @@ def do_main_menu(key, mouse):
       color_index = random.randint(0, len(title_colors) - 1)
       for x in range(0, g.screen_width):
         tcod.console_set_char_foreground(title_panel, x, y, title_colors[color_index])
+    
     tcod.console_blit(title_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
 
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
@@ -309,6 +308,12 @@ def do_main_menu(key, mouse):
         g.context = Context.EXIT
         waiting_for_response = False
 
+
+  tcod.console_clear(title_panel)
+  tcod.console_blit(title_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
+  tcod.console_clear(selection_panel)
+  tcod.console_blit(selection_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
+  tcod.console_flush()
 
 
 
@@ -625,7 +630,8 @@ def do_season_overview(key, mouse):
 
 
 def do_team_creation(key, mouse):
-  full_panel = tcod.console_new(g.screen_width, g.screen_height)
+  tcod.console_flush()
+  full_panel = tcod.console_new(g.screen_width * 2, g.screen_height)
   tcod.console_set_alignment(full_panel, tcod.LEFT)
   tcod.console_set_default_foreground(full_panel, tcod.sea)
 
@@ -640,7 +646,7 @@ def do_team_creation(key, mouse):
       (tcod.turquoise, '%c%c%c%cTurquoise%c'%(tcod.COLCTRL_FORE_RGB, tcod.turquoise.r + 256, tcod.turquoise.g + 256, tcod.turquoise.b + 256, tcod.COLCTRL_STOP)),
       (tcod.light_cyan, '%c%c%c%cLight cyan%c'%(tcod.COLCTRL_FORE_RGB, tcod.light_cyan.r + 256, tcod.light_cyan.g + 256, tcod.light_cyan.b + 256, tcod.COLCTRL_STOP)),
       (tcod.azure, '%c%c%c%cAzure%c'%(tcod.COLCTRL_FORE_RGB, tcod.azure.r + 256, tcod.azure.g + 256, tcod.azure.b + 256, tcod.COLCTRL_STOP)),
-      #(tcod.blue, '%c%c%c%cBlue%c'%(tcod.COLCTRL_FORE_RGB, tcod.blue.r + 256, tcod.blue.g + 256, tcod.blue.b + 256, tcod.COLCTRL_STOP)),
+      (tcod.blue, '%c%c%c%cBlue%c'%(tcod.COLCTRL_FORE_RGB, tcod.blue.r + 256, tcod.blue.g + 256, tcod.blue.b + 256, tcod.COLCTRL_STOP)),
       (tcod.purple, '%c%c%c%cPurple%c'%(tcod.COLCTRL_FORE_RGB, tcod.purple.r + 256, tcod.purple.g + 256, tcod.purple.b + 256, tcod.COLCTRL_STOP)),
       (tcod.light_purple, '%c%c%c%cLight purple%c'%(tcod.COLCTRL_FORE_RGB, tcod.light_purple.r + 256, tcod.light_purple.g + 256, tcod.light_purple.b + 256, tcod.COLCTRL_STOP)),
       (tcod.pink, '%c%c%c%cPink%c'%(tcod.COLCTRL_FORE_RGB, tcod.pink.r + 256, tcod.pink.g + 256, tcod.pink.b + 256, tcod.COLCTRL_STOP)),
