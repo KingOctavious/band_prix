@@ -141,6 +141,7 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
   lane_count = len(race.teams)
   lane_size = race.lane_size
   track_width = ((lane_size + 1) * lane_count) + 1
+  BASE_OFFSET_TO_CENTER = int((g.MAIN_VIEWPORT_WIDTH - track_width) / 2)
 
   for track_row in range(int(distance_traveled_by_player) - g.TRACK_ROWS_DISPLAYED_DOWN_FROM_PLAYER_TOP, int(distance_traveled_by_player) + g.TRACK_ROWS_TO_DISPLAY):
     y = int(distance_traveled_by_player) + g.TRACK_ROWS_DISPLAYED_ABOVE_PLAYER - track_row
@@ -148,13 +149,13 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
     
     # Stuff before the starting line
     if track_row < 0:
-      offset = 0
+      offset = BASE_OFFSET_TO_CENTER
     # Actual track
     elif track_row < track_length:
-      offset = race.circuit.track_shape[track_row][1]
+      offset = race.circuit.track_shape[track_row][1] + BASE_OFFSET_TO_CENTER
     # Stuff past the finish line
     else:
-      offset = race.circuit.track_shape[track_length - 1][1]
+      offset = race.circuit.track_shape[track_length - 1][1] + BASE_OFFSET_TO_CENTER
     
     left_edge = 0 + offset
 
@@ -194,21 +195,22 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
             # farther over than the width of a full lane, lanes were be printed
             # offset to the right by one full lane size.
             if int(left_edge / lane_size) > 0 and lane != 0:
-              tcod.console_put_char(con, col + offset - (lane_size + 1), y, lane_stripe, tcod.BKGND_NONE)
+              tcod.console_put_char(con, col + offset - (lane_size * int(left_edge / lane_size) + int(left_edge / lane_size)), y, lane_stripe, tcod.BKGND_NONE)
             else:  
               tcod.console_put_char(con, col + offset, y, lane_stripe, tcod.BKGND_NONE)
 
 
-
 def print_vehicles(con, race, player_y, distance_traveled_by_player):
-  # Print all vehicles
+  lane_count = len(race.teams)
+  track_width = ((race.lane_size + 1) * lane_count) + 1
+  BASE_OFFSET_TO_CENTER = int((g.MAIN_VIEWPORT_WIDTH - track_width) / 2)
   for n in range(0, len(race.teams)):
     # All vehicles are displayed vertically relative to player
     new_y = player_y + (int(distance_traveled_by_player) - int(race.teams[n].vehicle.distance_traveled))
     race.teams[n].vehicle.y = new_y
     for row in range(0, len(race.teams[n].vehicle.body.rows)):
       for col in range(0, len(race.teams[n].vehicle.body.rows[row])):
-        x = race.teams[n].vehicle.x + col
+        x = race.teams[n].vehicle.x + col + BASE_OFFSET_TO_CENTER
         y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, int(y), race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, int(y), race.teams[n].vehicle.color)

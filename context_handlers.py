@@ -363,7 +363,7 @@ def do_post_race(key, mouse):
 
 def do_race(key, mouse):
   main_viewport_height = 50
-  main_viewport_width = 80
+  main_viewport_width = g.MAIN_VIEWPORT_WIDTH
   bottom_viewport_height = 7
   side_viewport_width = 30
   main_viewport = tcod.console_new(main_viewport_width, main_viewport_height)
