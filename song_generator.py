@@ -157,13 +157,15 @@ def build_song(lexicon):
     if random.randint(0, 1) == 1 and x % 2 == 1:
       line += lexicon.get_word(pos.CONJUNCTION) + ' '
     line += build_line(lexicon, theme_noun_group)
-    line_length = len(line)
     line = line[0].upper() + line[1:]
     lyrics.append(line)
 
+  exclamation = lexicon.get_word(pos.EXCLAMATION)
+  exclamation = exclamation[0].upper() + exclamation[1:]
+
   lyrics.insert(4, refrain)
   lyrics.insert(4, refrain)
-  lyrics.insert(4, lexicon.get_word(pos.EXCLAMATION).title())
+  lyrics.insert(4, exclamation)
   lyrics.append(refrain)
   lyrics.append(refrain)
 
@@ -174,5 +176,5 @@ def build_song(lexicon):
   ]
 
   title = title_options[random.randint(0, len(title_options) - 1)].title()
-
+  
   return (title, lyrics)

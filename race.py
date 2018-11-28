@@ -8,7 +8,7 @@ class Race:
     self.lyrics = lyrics
     self.song_title = song_title
 
-    self.lane_padding = 2
+    self.lane_padding = 1
 
     # All vehicle bodies should be the same width, so we only have to look at
     # the first one.

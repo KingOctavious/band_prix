@@ -30,8 +30,8 @@ class Vehicle:
   def apply_damage(self, damage):
     self.condition -= damage
     # Need to keep damage > 0 so that vehicle can finish the race
-    if self.condition < 1:
-      self.condition = 1
+    if self.condition < 40:
+      self.condition = 40
 
 
   def apply_power(self, power_percentage):

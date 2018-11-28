@@ -573,10 +573,18 @@ def do_season_overview(key, mouse):
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
 
     spacing = 6
-    options = [
-      ('exit', 'I quit'),
-      ('go forward', 'Let\'s rock')
-    ]
+
+    options = []
+    if g.season.current_race >= len(g.season.circuits):
+      options = [
+        ('exit', 'Retire!'),
+        ('start over', 'Play again')
+      ]
+    else:
+      options = [
+        ('exit', 'I quit'),
+        ('go forward', 'Let\'s rock')
+      ]
     selection = options[0][0]
     
     tcod.console_clear(bottom_selector_panel)
@@ -621,13 +629,20 @@ def do_season_overview(key, mouse):
     tcod.console_blit(bottom_selector_panel, 0, 0, g.screen_width, bottom_selector_panel_h, 0, 0, g.screen_height - bottom_selector_panel_h)  
     tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
     tcod.console_flush()
-  if selection == 'go forward':
+  elif selection == 'go forward':
     g.context = Context.RACE
     tcod.console_clear(bottom_selector_panel)
     tcod.console_clear(nearly_full_panel)
     tcod.console_blit(bottom_selector_panel, 0, 0, g.screen_width, bottom_selector_panel_h, 0, 0, g.screen_height - bottom_selector_panel_h)  
     tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
     tcod.console_flush()
+  elif selection == 'start over':
+    g.context = Context.TEAM_CREATION
+    tcod.console_clear(bottom_selector_panel)
+    tcod.console_clear(nearly_full_panel)
+    tcod.console_blit(bottom_selector_panel, 0, 0, g.screen_width, bottom_selector_panel_h, 0, 0, g.screen_height - bottom_selector_panel_h)  
+    tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
+    tcod.console_flush()    
   
   
 

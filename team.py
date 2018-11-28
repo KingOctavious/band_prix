@@ -44,9 +44,9 @@ class Team:
   def ai_apply_power(self):
     powerpct = 0
     if self.power_recovery_counter <= 0:
-      powerpct = random.uniform(0.33, 1.00)
+      powerpct = random.uniform(0.60, 1.00)
     else:
-      powerpct = random.uniform(0.00, 0.15)
+      powerpct = random.uniform(0.00, 0.40)
     self.vehicle.apply_power(powerpct)
 
   # ai_observe_curves

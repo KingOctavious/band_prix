@@ -175,8 +175,13 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
       
       # Print lane stripes
       else:
-        lane = int(col / (lane_size + 1)) - int(left_edge / lane_size)
-        col_within_lane = col - (lane * (lane_size + 1)) - ((lane_size + 1) * int(left_edge / lane_size))
+        # This tracks the number of lane widths the track is shifted to the 
+        # right. E.g., if the track is shifted 11 spaces to the right, that 
+        # counts as one full lane width. This is necessary for lane stripe
+        # printing.
+        full_lanes_shifted_over = int(left_edge / lane_size)
+        lane = int(col / (lane_size + 1)) - full_lanes_shifted_over
+        col_within_lane = col - (lane * (lane_size + 1)) - ((lane_size + 1) * full_lanes_shifted_over)
         if col_within_lane == 0:
           # Before start line
           if track_row < 0:
@@ -194,8 +199,8 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
             # Slightly hacky here because in situations where the left edge is
             # farther over than the width of a full lane, lanes were be printed
             # offset to the right by one full lane size.
-            if int(left_edge / lane_size) > 0 and lane != 0:
-              tcod.console_put_char(con, col + offset - (lane_size * int(left_edge / lane_size) + int(left_edge / lane_size)), y, lane_stripe, tcod.BKGND_NONE)
+            if full_lanes_shifted_over > 0 and lane != 0:
+              tcod.console_put_char(con, col + offset - (lane_size * full_lanes_shifted_over + full_lanes_shifted_over), y, lane_stripe, tcod.BKGND_NONE)
             else:  
               tcod.console_put_char(con, col + offset, y, lane_stripe, tcod.BKGND_NONE)
 
