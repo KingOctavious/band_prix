@@ -393,10 +393,14 @@ def do_race(key, mouse):
 
   teams = race.teams
   player_team_index = 0
+  lane_count = len(race.teams)
+  track_width = ((race.lane_size + 1) * lane_count) + 1
+  BASE_OFFSET_TO_CENTER = int((g.MAIN_VIEWPORT_WIDTH - track_width) / 2)
   for x in range(0, len(teams)):
-    if (race.teams[x].isPlayer):
+    if (teams[x].isPlayer):
       player_team_index = x
-      break
+    teams[x].vehicle.x = BASE_OFFSET_TO_CENTER + (x * (race.lane_size + 1)) + 2
+
 
   lyrics = race.lyrics
   vehicles_collided = set([])
@@ -412,7 +416,6 @@ def do_race(key, mouse):
   first_frame = True
   time_elapsed_last_frame = 0
   race_start_time = tcod.sys_elapsed_seconds()
-
   while not race_finished:
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
     if not song_completed:       
@@ -502,7 +505,6 @@ def do_race(key, mouse):
         team.vehicle.distance_traveled += distance_traveled_this_frame
         
 
-
       # Check for collisions
       vehicles_collided.clear()
       handle_collisions(race, vehicles_collided, barricade_locations)
@@ -540,7 +542,7 @@ def do_race(key, mouse):
         if current_intro_line > 0:
           time.sleep(intro_lines[current_intro_line - 1][1])
       current_intro_line += 1
-        
+
     tcod.console_flush()
 
   # Race is finished

@@ -215,7 +215,7 @@ def print_vehicles(con, race, player_y, distance_traveled_by_player):
     race.teams[n].vehicle.y = new_y
     for row in range(0, len(race.teams[n].vehicle.body.rows)):
       for col in range(0, len(race.teams[n].vehicle.body.rows[row])):
-        x = race.teams[n].vehicle.x + col + BASE_OFFSET_TO_CENTER
+        x = race.teams[n].vehicle.x + col# + BASE_OFFSET_TO_CENTER
         y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, int(y), race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, int(y), race.teams[n].vehicle.color)
