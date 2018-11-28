@@ -300,22 +300,17 @@ def do_main_menu(key, mouse):
     selection = handle_questions(selection_panel, key, mouse, questions_options, 24)
     if len(selection) > 0:
       if selection[0] == 'start':
-        print('start')
         g.context = Context.TEAM_CREATION
         waiting_for_response = False
       elif selection[0] == 'exit':
-        print('exit')
         g.context = Context.EXIT
         waiting_for_response = False
-
 
   tcod.console_clear(title_panel)
   tcod.console_blit(title_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
   tcod.console_clear(selection_panel)
   tcod.console_blit(selection_panel, 0, 0, g.screen_width, title_panel_h, 0, 0, 0)
   tcod.console_flush()
-
-
 
 
 # do_post_race
@@ -425,7 +420,6 @@ def do_race(key, mouse):
     keypress_timer += tcod.sys_get_last_frame_length()
     total_time_elapsed = tcod.sys_elapsed_seconds()
         
-    
     if race_started:
       if not first_frame:
         time_elapsed_last_frame = tcod.sys_get_last_frame_length()
@@ -590,6 +584,20 @@ def do_season_overview(key, mouse):
     option0_text = options[0][1]
     option1_text = options[1][1]
 
+    # Currently only supports exactly 2 options
+    xy0 = (int(g.screen_width / 2) - len(option0_text) - int(spacing / 2), int(bottom_selector_panel_h / 2))
+    xy1 = (int(g.screen_width / 2) + int(spacing / 2), int(bottom_selector_panel_h / 2))
+    tcod.console_print_ex(bottom_selector_panel, xy0[0], xy0[1], tcod.BKGND_SET, tcod.LEFT, option0_text)
+    tcod.console_print_ex(bottom_selector_panel, xy1[0], xy1[1], tcod.BKGND_SET, tcod.LEFT, option1_text)
+
+    if selected_option == 0:
+      tcod.console_hline(bottom_selector_panel, xy0[0] - 2, xy0[1] - 1, len(option0_text) + 4)
+      tcod.console_hline(bottom_selector_panel, xy0[0] - 2, xy0[1] + 1, len(option0_text) + 4)
+
+    elif selected_option == 1:
+      tcod.console_hline(bottom_selector_panel, xy1[0] - 2, xy1[1] - 1, len(option1_text) + 4)
+      tcod.console_hline(bottom_selector_panel, xy1[0] - 2, xy1[1] + 1, len(option1_text) + 4)
+
     action = handle_keys(key, 'simple selection')
     select = action.get('select')
     enter = action.get('enter')
@@ -602,31 +610,26 @@ def do_season_overview(key, mouse):
     if enter:
       selection = options[selected_option][0]
       confirm = True
-
-
-    if len(options) == 2:        
-      xy0 = (int(g.screen_width / 2) - len(option0_text) - int(spacing / 2), int(bottom_selector_panel_h / 2))
-      xy1 = (int(g.screen_width / 2) + int(spacing / 2), int(bottom_selector_panel_h / 2))
-      tcod.console_print_ex(bottom_selector_panel, xy0[0], xy0[1], tcod.BKGND_SET, tcod.LEFT, option0_text)
-      tcod.console_print_ex(bottom_selector_panel, xy1[0], xy1[1], tcod.BKGND_SET, tcod.LEFT, option1_text)
-
-      if selected_option == 0:
-        tcod.console_hline(bottom_selector_panel, xy0[0] - 2, xy0[1] - 1, len(option0_text) + 4)
-        tcod.console_hline(bottom_selector_panel, xy0[0] - 2, xy0[1] + 1, len(option0_text) + 4)
-
-      elif selected_option == 1:
-        tcod.console_hline(bottom_selector_panel, xy1[0] - 2, xy1[1] - 1, len(option1_text) + 4)
-        tcod.console_hline(bottom_selector_panel, xy1[0] - 2, xy1[1] + 1, len(option1_text) + 4)
-      
-
-    tcod.console_blit(bottom_selector_panel, 0, 0, g.screen_width, bottom_selector_panel_h, 0, 0, g.screen_height - bottom_selector_panel_h)
-
+    
+    tcod.console_blit(bottom_selector_panel, 0, 0, g.screen_width, bottom_selector_panel_h, 0, 0, g.screen_height - bottom_selector_panel_h)  
     tcod.console_flush()
 
   if selection == 'exit':
     g.context = Context.MAIN_MENU
+    tcod.console_clear(bottom_selector_panel)
+    tcod.console_clear(nearly_full_panel)
+    tcod.console_blit(bottom_selector_panel, 0, 0, g.screen_width, bottom_selector_panel_h, 0, 0, g.screen_height - bottom_selector_panel_h)  
+    tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
+    tcod.console_flush()
   if selection == 'go forward':
     g.context = Context.RACE
+    tcod.console_clear(bottom_selector_panel)
+    tcod.console_clear(nearly_full_panel)
+    tcod.console_blit(bottom_selector_panel, 0, 0, g.screen_width, bottom_selector_panel_h, 0, 0, g.screen_height - bottom_selector_panel_h)  
+    tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
+    tcod.console_flush()
+  
+  
 
 
 def do_team_creation(key, mouse):
