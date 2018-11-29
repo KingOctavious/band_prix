@@ -4,8 +4,8 @@ from context import Context
 ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 context = None
 MAIN_VIEWPORT_WIDTH = 80
-screen_height = 57
-screen_width = 110
+screen_height = 50
+screen_width = 100
 season = None
 POINTS = {
   1: 25,

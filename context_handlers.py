@@ -362,10 +362,10 @@ def do_post_race(key, mouse):
 
 
 def do_race(key, mouse):
-  main_viewport_height = 50
+  bottom_viewport_height = 7  
+  main_viewport_height = g.screen_height - bottom_viewport_height
   main_viewport_width = g.MAIN_VIEWPORT_WIDTH
-  bottom_viewport_height = 7
-  side_viewport_width = 30
+  side_viewport_width = g.screen_width - main_viewport_width
   main_viewport = tcod.console_new(main_viewport_width, main_viewport_height)
 
   bottom_viewport_y = g.screen_height - bottom_viewport_height
@@ -523,7 +523,7 @@ def do_race(key, mouse):
 
     tcod.console_clear(side_viewport)
     print_panel_side(side_viewport, build_race_stats(race), side_viewport_width)
-    tcod.console_blit(side_viewport, 0, 0, side_viewport_width, g.screen_height, 0, side_viewport_x, 0)
+    tcod.console_blit(side_viewport, 0, 0, side_viewport_width, g.screen_height - bottom_viewport_height, 0, side_viewport_x, 0)
 
     if not race_started:
       # This structure is pretty ugly, but no time to clean it up
