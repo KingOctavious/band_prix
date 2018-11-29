@@ -35,7 +35,10 @@ class Vehicle:
 
 
   def apply_power(self, power_percentage):
-    modifier_from_damage = self.condition / 100
+    # Modifier is half the difference of current condition from max condition.
+    # E.g., if car is at 60% condition, modifier from damage is 80% rather than
+    # 60%.
+    modifier_from_damage = (self.condition / 100) + ((1.00 - (self.condition / 100)) / 2)
 
     if power_percentage > 0:
       self.current_max_speed_from_power = round(power_percentage * self.max_speed * modifier_from_damage)

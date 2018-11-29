@@ -10,7 +10,7 @@ ALL_TEAMS = [
   Team('ViscDuds', tcod.purple, Vehicle(vehicle_bodies.v_bod_1)),
   Team('The Billiards', tcod.sea, Vehicle(vehicle_bodies.v_bod_1)),
   Team('Strange Dan Gustafvist', tcod.yellow, Vehicle(vehicle_bodies.v_bod_1)),
-  Team('The Italian Horse', tcod.red, Vehicle(vehicle_bodies.v_bod_1)),
+  Team('Italian Horse', tcod.red, Vehicle(vehicle_bodies.v_bod_1)),
   Team('The Unicorns', tcod.light_purple, Vehicle(vehicle_bodies.v_bod_1)),
   Team('Harold of the Boulders', tcod.gray, Vehicle(vehicle_bodies.v_bod_1)),
   Team('PrimeThem', tcod.sepia, Vehicle(vehicle_bodies.v_bod_1)),

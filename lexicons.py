@@ -2,7 +2,6 @@ from lexicon import Lexicon
 from part_of_speech import Part_Of_Speech as pos
 
 country_nouns = [
-  ['America'],
 	['American flag', 'American flags'],
   ['barbeque'],
 	['beer'],
@@ -150,7 +149,6 @@ metal_nouns = [
   ['innocence', 'innocents'], # Yes, I know these are two different things
 	['killer', 'killers'],
 	['knight', 'knights'],
-	['life', 'lives'],
 	['memory', 'memories'],
 	['night', 'nights'],
 	['nightmare', 'nightmares'],

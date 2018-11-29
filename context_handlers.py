@@ -119,7 +119,7 @@ def get_distance_traveled(team):
 # coupled with the time (in seconds) to display each.
 def get_race_intro(song_title, lexicon, circuit):
   announcement = [
-    ('Welcome to the {} Band Prix!'.format(circuit.name), 2),
+    ('Welcome to the {}!'.format(circuit.name), 2),
     ('Today you will be playing the hit {} song'.format(lexicon.name), 1),
     ('Today you will be playing the hit {} song'.format(lexicon.name) + '\n' + '\n' + '\n' + '"{}"'.format(song_title), 2.5),
     ('Get ready!', 1),
@@ -141,6 +141,8 @@ def handle_option_selection(key, options):
   confirmed = False
   action = handle_keys(key)
   pressed_key_char = action.get('key_char')
+  if pressed_key_char != None:
+    pressed_key_char = pressed_key_char.lower()
   response = None
   response_text = ''
   if pressed_key_char in g.ALPHABET:

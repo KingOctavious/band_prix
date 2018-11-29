@@ -44,9 +44,9 @@ class Team:
   def ai_apply_power(self):
     powerpct = 0
     if self.power_recovery_counter <= 0:
-      powerpct = random.uniform(0.70, 1.00)
+      powerpct = random.uniform(0.64, 1.00)
     else:
-      powerpct = random.uniform(0.00, 0.30)
+      powerpct = random.uniform(0.10, 0.50)
     self.vehicle.apply_power(powerpct)
 
   # ai_observe_curves
@@ -55,6 +55,7 @@ class Team:
   # `self.curves_observed` to handle soon.
   def ai_observe_curves(self, track_layout, rows_since_last_check):
     rows_since_last_check = int(rows_since_last_check)
+    POWER_RECOV_COUNTER_LIMIT = 100
     for track_row in range(int(self.vehicle.distance_traveled) - rows_since_last_check, int(self.vehicle.distance_traveled)):
       if track_row < len(track_layout):
         # if self.vehicle.distance_traveled >= 100:
@@ -62,8 +63,10 @@ class Team:
         direction = track_layout[track_row]
         if direction != td.STRAIGHT:
           self.curves_observed.append([direction, 0])         
-          POWER_RECOV_MULTIPLIER = 20
+          POWER_RECOV_MULTIPLIER = 30
           self.power_recovery_counter += POWER_RECOV_MULTIPLIER
+          if self.power_recovery_counter > POWER_RECOV_COUNTER_LIMIT:
+            self.power_recovery_counter = POWER_RECOV_COUNTER_LIMIT
 
 
   # ai_determine_direction
@@ -73,7 +76,7 @@ class Team:
   # Returns the direction to steer this frame.
   def ai_determine_direction(self):
     # % chance to turn immediately when curve is observed
-    BASE_REFLEX = 8
+    BASE_REFLEX = 14
     # Additional % point chance each frame to execute turns for observed curves
     REFLEX_INCREMENTER = 4
     # Remember `curves_observed` are direction:age tuples
