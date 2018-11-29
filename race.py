@@ -31,7 +31,7 @@ class Race:
     # Dict of place:team finalized at end of race.
     self.places = {}
 
-    # Set vhicles' starting positions
+    # Set vehicles' starting positions
     for n in range(0, len(teams)):
       teams[n].vehicle.x = 1 + self.lane_padding + ((self.lane_size + 1) * n)
-      teams[n].vehicle.y =  int(g.TRACK_ROWS_TO_DISPLAY / 2)#START_DIST_FROM_TOP
+      teams[n].vehicle.y =  int(g.TRACK_ROWS_TO_DISPLAY / 2)

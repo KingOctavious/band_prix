@@ -265,21 +265,14 @@ def do_main_menu(key, mouse):
 
   title_colors = [
     tcod.azure,
-    #tcod.blue,
     tcod.cyan,
-    tcod.fuchsia,
-    tcod.light_gray,
-    #tcod.light_pink,
     tcod.dark_purple,
     tcod.dark_violet,
-    #tcod.orange,
-    #tcod.pink,
+    tcod.fuchsia,
+    tcod.light_gray,
     tcod.purple,
-    #tcod.red,
     tcod.sea,
     tcod.turquoise,
-    #tcod.white,
-    #tcod.yellow
   ]
 
   questions_options = {
@@ -420,8 +413,6 @@ def do_race(key, mouse):
   race_start_time = tcod.sys_elapsed_seconds()
   while not race_finished:
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
-    if not song_completed:       
-      active_key_char = lyrics[verse][active_lyrics_character]
     keypress_timer += tcod.sys_get_last_frame_length()
     total_time_elapsed = tcod.sys_elapsed_seconds()
         
@@ -449,8 +440,6 @@ def do_race(key, mouse):
             else:
               powerpct = 1
             team.vehicle.apply_power(powerpct)
-            # debug
-            #team.vehicle.apply_power(.65)
 
             if pressed_key_char and not song_completed:
               correct = check_key_char_input(pressed_key_char, race.lyrics[verse], active_lyrics_character)
@@ -647,8 +636,6 @@ def do_season_overview(key, mouse):
     tcod.console_blit(bottom_selector_panel, 0, 0, g.screen_width, bottom_selector_panel_h, 0, 0, g.screen_height - bottom_selector_panel_h)  
     tcod.console_blit(nearly_full_panel, 0, 0, g.screen_width, g.screen_height - bottom_selector_panel_h, 0, 0, 0)
     tcod.console_flush()    
-  
-  
 
 
 def do_team_creation(key, mouse):

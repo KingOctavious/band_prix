@@ -22,20 +22,9 @@ import vehicle_bodies
 import visuals
  
 
-  # End function definitions ##################################################
-
 FPS_CAP = 60
-#frame_render_time = 1 / FPS_CAP
 fullscreen = False
 GAME_TITLE = 'Band Prix 2094'
-#font_path = 'arial10x10.png'
-#font_path = 'arial12x12.png'
-#font_path = 'consolas10x10_gs_tc.png'
-#font_path  = 'lucida12x12_gs_tc.png'
-#font_path  = 'terminal10x10_gs_tc.png'
-
-#layout = tcod.FONT_LAYOUT_TCOD
-
 font_path = 'terminal16x16_gs_ro.png'
 layout = tcod.FONT_LAYOUT_ASCII_INROW
 
@@ -66,11 +55,5 @@ while not tcod.console_is_window_closed() and not exit_game:
     do_post_race(key, mouse)
   elif g.context == Context.EXIT:
     exit_game = True
-
-
-
-
-
-  #sleep(0.1)
  
 quit()

@@ -7,10 +7,6 @@ from track_direction import Track_Direction as td
 import visuals
 
 def print_lyrics(panel, lyrics, active_character):
-  # primary_color = tcod.cyan
-  # primary_color_dark = tcod.darkest_cyan
-  # primary_color = tcod.turquoise
-  # primary_color_dark = tcod.darkest_turquoise
   primary_color = tcod.sea
   primary_color_dark = tcod.darkest_sea
 
@@ -206,16 +202,13 @@ def print_track(con, race, distance_traveled_by_player, barricade_locations_hold
 
 
 def print_vehicles(con, race, player_y, distance_traveled_by_player):
-  lane_count = len(race.teams)
-  track_width = ((race.lane_size + 1) * lane_count) + 1
-  BASE_OFFSET_TO_CENTER = int((g.MAIN_VIEWPORT_WIDTH - track_width) / 2)
   for n in range(0, len(race.teams)):
     # All vehicles are displayed vertically relative to player
     new_y = player_y + (int(distance_traveled_by_player) - int(race.teams[n].vehicle.distance_traveled))
     race.teams[n].vehicle.y = new_y
     for row in range(0, len(race.teams[n].vehicle.body.rows)):
       for col in range(0, len(race.teams[n].vehicle.body.rows[row])):
-        x = race.teams[n].vehicle.x + col# + BASE_OFFSET_TO_CENTER
+        x = race.teams[n].vehicle.x + col
         y = race.teams[n].vehicle.y + row
         tcod.console_put_char(con, x, int(y), race.teams[n].vehicle.body.rows[row][col], tcod.BKGND_NONE)
         tcod.console_set_char_foreground(con, x, int(y), race.teams[n].vehicle.color)

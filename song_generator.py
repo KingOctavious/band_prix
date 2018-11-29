@@ -55,12 +55,7 @@ def build_subject_structure():
   subject_structure = []
 
   subjects = 1
-
-    # Disabling > 1 subjects for now. Usually sounds awkward 
-  # in current construction.
-  # CHANCE_FOR_DUAL_SUBJECT = 10
-  # if random.uniform(0, 99) <= CHANCE_FOR_DUAL_SUBJECT:
-  #   subjects = 2
+  # Disabling > 1 subjects for now. Tended to sound awkward.
 
   CHANCE_FOR_LONE_PRONOUN = 80
   for x in range(0, subjects):
