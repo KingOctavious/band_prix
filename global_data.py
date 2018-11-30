@@ -3,6 +3,7 @@ from context import Context
 
 ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 context = None
+lexicon_counter = 0
 MAIN_VIEWPORT_WIDTH = 80
 screen_height = 50
 screen_width = 100

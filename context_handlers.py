@@ -378,7 +378,7 @@ def do_race(key, mouse):
   tcod.console_set_alignment(intro_window, tcod.CENTER)
   tcod.console_set_default_foreground(intro_window, tcod.sea)
 
-  lexicon = lex.genres_lexicons[random.randint(0, len(lex.genres_lexicons) - 1)][0]
+  lexicon = lex.genres_lexicons[g.lexicon_counter][0]
   title_and_song = build_song(lexicon)
   race = Race(g.season.teams, g.season.circuits[g.season.current_race], title_and_song[1], title_and_song[0])
 
@@ -543,7 +543,9 @@ def do_race(key, mouse):
     race.places[place] = stat.team
     place += 1
   g.season.races.append(race)
-
+  g.lexicon_counter += 1
+  if g.lexicon_counter >= len(lex.genres_lexicons):
+    g.lexicon_counter = 0
   g.context = Context.POST_RACE
 
 
