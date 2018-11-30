@@ -20,8 +20,8 @@ from vehicle import Vehicle
 from vehicle_body import Vehicle_Body
 import vehicle_bodies
 import visuals
- 
 
+ 
 FPS_CAP = 60
 fullscreen = False
 GAME_TITLE = 'Band Prix 2094'
