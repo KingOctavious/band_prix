@@ -681,13 +681,6 @@ def do_team_creation(key, mouse):
   player_team = Team(responses[0], responses[1], Vehicle(vehicle_bodies.v_bod_1), True)
   teams = t.pick_season_teams(player_team)
 
-  # Build competition
-  p_color = player_team.color
-  for ai in teams:
-    if ai.color == p_color and not ai.isPlayer:
-      # TODO: Make this better
-      ai.set_color(tcod.peach)
-
   # Build season
   season_circuits = []
   for circuit in circuits.ALL:
