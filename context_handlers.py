@@ -119,10 +119,10 @@ def get_distance_traveled(team):
 # coupled with the time (in seconds) to display each.
 def get_race_intro(song_title, lexicon, circuit):
   announcement = [
-    ('Welcome to the {}!'.format(circuit.name), 2),
-    ('Today you will be playing the hit {} song'.format(lexicon.name), 1),
+    ('Welcome to the {}!'.format(circuit.name), 1.5),
+    ('Today you will be playing the hit {} song'.format(lexicon.name), 1.5),
     ('Today you will be playing the hit {} song'.format(lexicon.name) + '\n' + '\n' + '\n' + '"{}"'.format(song_title), 2.5),
-    ('Get ready!', 1),
+    ('Get ready!', 1.5),
     ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c*%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
     ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
     ('Get ready!' + '\n' + '\n' + '\n' + '\n' + '%c%c%c%c* * * * *%c'%(tcod.COLCTRL_FORE_RGB, tcod.red.r + 256, tcod.red.g + 256, tcod.red.b + 256, tcod.COLCTRL_STOP), 1),
@@ -275,6 +275,8 @@ def do_main_menu(key, mouse):
     tcod.turquoise,
   ]
 
+  g.lexicon_counter = 0
+
   questions_options = {
     '': [
       ('start', 'Start'),
@@ -396,7 +398,7 @@ def do_race(key, mouse):
       player_team_index = x
     teams[x].vehicle.x = BASE_OFFSET_TO_CENTER + (x * (race.lane_size + 1)) + 2
 
-
+  exit_game = False
   lyrics = race.lyrics
   vehicles_collided = set([])
   active_lyrics_character = 0
@@ -411,7 +413,7 @@ def do_race(key, mouse):
   first_frame = True
   time_elapsed_last_frame = 0
   race_start_time = tcod.sys_elapsed_seconds()
-  while not race_finished:
+  while not race_finished and not exit_game:
     tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS, key, mouse)
     keypress_timer += tcod.sys_get_last_frame_length()
     total_time_elapsed = tcod.sys_elapsed_seconds()
@@ -537,16 +539,24 @@ def do_race(key, mouse):
     tcod.console_flush()
 
   # Race is finished
-  final_stats = build_race_stats(race)
-  place = 1
-  for stat in final_stats:
-    race.places[place] = stat.team
-    place += 1
-  g.season.races.append(race)
-  g.lexicon_counter += 1
-  if g.lexicon_counter >= len(lex.genres_lexicons):
-    g.lexicon_counter = 0
-  g.context = Context.POST_RACE
+  if exit_game:
+    tcod.console_clear(main_viewport)
+    tcod.console_blit(main_viewport, 0, 0, g.screen_width, g.screen_height, 0, 0, 0,)
+    tcod.console_clear(bottom_viewport)
+    tcod.console_blit(bottom_viewport, 0, 0, main_viewport_width, bottom_viewport_height, 0, 0, bottom_viewport_y)
+    tcod.console_flush()
+    g.context = Context.MAIN_MENU
+  else:
+    final_stats = build_race_stats(race)
+    place = 1
+    for stat in final_stats:
+      race.places[place] = stat.team
+      place += 1
+    g.season.races.append(race)
+    g.lexicon_counter += 1
+    if g.lexicon_counter >= len(lex.genres_lexicons):
+      g.lexicon_counter = 0
+    g.context = Context.POST_RACE
 
 
 def do_season_overview(key, mouse):
